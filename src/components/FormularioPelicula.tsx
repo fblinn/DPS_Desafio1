@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, ChangeEvent } from 'react';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { agregarPelicula, editarPelicula } from '@/redux/slices/peliculasSlice';
 import { Pelicula, EstadoPelicula } from '@/types/pelicula';
 
 interface FormularioPeliculaProps {
-   // Película a editar; null agrega una nueva
+  // Película a editar; si es null agregará una nueva
   peliculaEditar: Pelicula | null;
   onClose: () => void;
 }
@@ -20,13 +20,16 @@ interface FormState {
   salaAsignada: string;
   precio: string;
   estado: EstadoPelicula;
+  posterImage: string; // base64, string vacío si no hay imagen
 }
 
+// Objeto que almacena los mensajes de error del form
 type Errores = Partial<Record<keyof FormState, string>>;
 
 const COLORES_POSTER = ['#e50914', '#7b2ff7', '#00c9a7', '#f5a623', '#1f6feb', '#c2185b'];
+const MAX_TAMANO_IMAGEN_MB = 3;
 
-// Genera estado inicial del formulario
+// estado inicial del formulario
 function estadoInicial(pelicula: Pelicula | null): FormState {
   if (!pelicula) {
     return {
@@ -38,9 +41,9 @@ function estadoInicial(pelicula: Pelicula | null): FormState {
       salaAsignada: '',
       precio: '',
       estado: 'disponible',
+      posterImage: '',
     };
   }
-   // Si existe una peli, carga datos para editar
   return {
     codigo: pelicula.codigo,
     nombre: pelicula.nombre,
@@ -50,10 +53,11 @@ function estadoInicial(pelicula: Pelicula | null): FormState {
     salaAsignada: pelicula.salaAsignada,
     precio: String(pelicula.precio),
     estado: pelicula.estado,
+    posterImage: pelicula.posterImage ?? '',
   };
 }
 
-// Form para agregar o editar
+// Form para agregar o editar películas
 export default function FormularioPelicula({
   peliculaEditar,
   onClose,
@@ -67,6 +71,37 @@ export default function FormularioPelicula({
     setForm((prev) => ({ ...prev, [campo]: valor }));
   };
 
+  // Procesa la imagen seleccionada por user
+  const handleImagenSeleccionada = (e: ChangeEvent<HTMLInputElement>) => {
+    const archivo = e.target.files?.[0];
+    if (!archivo) return;
+
+    if (!archivo.type.startsWith('image/')) {
+      setErrores((prev) => ({ ...prev, posterImage: 'El archivo debe ser una imagen.' }));
+      return;
+    }
+
+    if (archivo.size > MAX_TAMANO_IMAGEN_MB * 1024 * 1024) {
+      setErrores((prev) => ({
+        ...prev,
+        posterImage: `La imagen no debe superar ${MAX_TAMANO_IMAGEN_MB} MB.`,
+      }));
+      return;
+    }
+
+    const lector = new FileReader();
+    lector.onload = () => {
+      setForm((prev) => ({ ...prev, posterImage: lector.result as string }));
+      setErrores((prev) => ({ ...prev, posterImage: undefined }));
+    };
+    lector.readAsDataURL(archivo);
+  };
+
+  const quitarImagen = () => {
+    setForm((prev) => ({ ...prev, posterImage: '' }));
+  };
+
+  // Valida todos los campos antes de guardar
   const validar = (): Errores => {
     const nuevosErrores: Errores = {};
 
@@ -104,13 +139,13 @@ export default function FormularioPelicula({
     return nuevosErrores;
   };
 
+  // Procesa el envío del form
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     const nuevosErrores = validar();
     setErrores(nuevosErrores);
     if (Object.keys(nuevosErrores).length > 0) return;
 
-    // Construye objeto pelicula con los datos ingresados
     const payload: Pelicula = {
       id: peliculaEditar?.id ?? crypto.randomUUID(),
       codigo: form.codigo.trim(),
@@ -124,9 +159,10 @@ export default function FormularioPelicula({
       posterColor:
         peliculaEditar?.posterColor ??
         COLORES_POSTER[Math.floor(Math.random() * COLORES_POSTER.length)],
+      posterImage: form.posterImage || undefined,
     };
 
-     // Decide si agrega una nueva o actualiza existente
+     // Agrega pelí nueva o actualiza una existente
     if (peliculaEditar) {
       dispatch(editarPelicula(payload));
     } else {
@@ -136,6 +172,8 @@ export default function FormularioPelicula({
     onClose();
   };
 
+
+  // modal
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-card" onClick={(e) => e.stopPropagation()}>
@@ -225,6 +263,34 @@ export default function FormularioPelicula({
                 placeholder="4.50"
               />
               {errores.precio && <span className="field-error">{errores.precio}</span>}
+            </div>
+
+            <div className="form-field full">
+              <label>Poster </label>
+              <div className="poster-upload">
+                {form.posterImage ? (
+                  <img src={form.posterImage} alt="Vista previa del poster" className="poster-preview" />
+                ) : (
+                  <div className="poster-preview poster-preview-empty">Sin imagen</div>
+                )}
+                <div className="poster-upload-actions">
+                  <label className="btn-secondary poster-upload-btn">
+                    {form.posterImage ? 'Cambiar imagen' : 'Subir imagen'}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImagenSeleccionada}
+                      hidden
+                    />
+                  </label>
+                  {form.posterImage && (
+                    <button type="button" className="btn-icon danger" onClick={quitarImagen}>
+                      🗑
+                    </button>
+                  )}
+                </div>
+              </div>
+              {errores.posterImage && <span className="field-error">{errores.posterImage}</span>}
             </div>
 
             <div className="form-field">

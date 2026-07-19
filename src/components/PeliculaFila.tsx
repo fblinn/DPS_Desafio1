@@ -21,13 +21,14 @@ export default function PeliculaFila({
 
   return (
     <tr>
-      <td>
-        <div
-          className="poster-swatch"
-          style={{ background: pelicula.posterColor || '#333' }}
-        >
-          {inicial}
-        </div>
+        <td>
+          {pelicula.posterImage ? (
+            <img src={pelicula.posterImage} alt={pelicula.nombre} className="poster-thumb" />
+          ) : (
+            <div className="poster-swatch" style={{ background: pelicula.posterColor || '#333' }}>
+              {inicial}
+            </div>
+          )}
       </td>
       <td>
         <div className="movie-name">{pelicula.nombre}</div>

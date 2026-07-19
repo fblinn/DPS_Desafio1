@@ -278,6 +278,51 @@ table.peliculas-table {
   transition: transform 0.2s ease;
 }
 
+.poster-thumb {
+  width: 42px;
+  height: 58px;
+  border-radius: 4px;
+  object-fit: cover;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  transition: transform 0.2s ease;
+}
+.peliculas-table tbody tr:hover .poster-thumb {
+  transform: scale(1.06);
+}
+.poster-upload {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.poster-preview {
+  width: 70px;
+  height: 96px;
+  border-radius: 6px;
+  object-fit: cover;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  flex-shrink: 0;
+}
+.poster-preview-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-elevated);
+  border: 1px dashed var(--border-subtle);
+  color: var(--text-dim);
+  font-size: 11px;
+  text-align: center;
+}
+.poster-upload-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.poster-upload-btn {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
 .peliculas-table tbody tr:hover .poster-swatch {
   transform: scale(1.06);
 }

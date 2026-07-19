@@ -75,8 +75,8 @@ export default function Home() {
         <div className="navbar-left">
           <span className="brand">CINEFLIX</span>
           <ul className="nav-links">
-            <li className="active">Inicio</li>
-            <li>Películas</li>
+            <li>Inicio</li>
+            <li className="active">Películas</li>          
             <li>Ventas</li>
             <li>Configuración</li>
           </ul>
