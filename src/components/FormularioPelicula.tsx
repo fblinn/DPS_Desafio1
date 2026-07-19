@@ -6,7 +6,7 @@ import { agregarPelicula, editarPelicula } from '@/redux/slices/peliculasSlice';
 import { Pelicula, EstadoPelicula } from '@/types/pelicula';
 
 interface FormularioPeliculaProps {
-  // Película a editar; si es null agregará una nueva
+  // Película a editar; null agrega una nueva
   peliculaEditar: Pelicula | null;
   onClose: () => void;
 }
@@ -23,13 +23,14 @@ interface FormState {
   posterImage: string; // base64, string vacío si no hay imagen
 }
 
-// Objeto que almacena los mensajes de error del form
+type CampoTexto = Exclude<keyof FormState, 'estado'>;
 type Errores = Partial<Record<keyof FormState, string>>;
+type Tocado = Partial<Record<keyof FormState, boolean>>;
 
 const COLORES_POSTER = ['#e50914', '#7b2ff7', '#00c9a7', '#f5a623', '#1f6feb', '#c2185b'];
 const MAX_TAMANO_IMAGEN_MB = 3;
 
-// estado inicial del formulario
+// Genera estado inicial del formulario
 function estadoInicial(pelicula: Pelicula | null): FormState {
   if (!pelicula) {
     return {
@@ -44,6 +45,7 @@ function estadoInicial(pelicula: Pelicula | null): FormState {
       posterImage: '',
     };
   }
+  // Si existe una peli, carga datos para editar
   return {
     codigo: pelicula.codigo,
     nombre: pelicula.nombre,
@@ -57,7 +59,7 @@ function estadoInicial(pelicula: Pelicula | null): FormState {
   };
 }
 
-// Form para agregar o editar películas
+// Form para agregar o editar
 export default function FormularioPelicula({
   peliculaEditar,
   onClose,
@@ -66,12 +68,92 @@ export default function FormularioPelicula({
   const peliculas = useAppSelector((state) => state.peliculas.lista);
   const [form, setForm] = useState<FormState>(estadoInicial(peliculaEditar));
   const [errores, setErrores] = useState<Errores>({});
+  const [tocado, setTocado] = useState<Tocado>({});
+  const [intentoEnviar, setIntentoEnviar] = useState(false);
 
-  const actualizar = (campo: keyof FormState, valor: string) => {
-    setForm((prev) => ({ ...prev, [campo]: valor }));
+  // Valida un solo campo y devuelve su mensaje de error (o undefined si está bien)
+  const validarCampo = (campo: CampoTexto, valores: FormState): string | undefined => {
+    switch (campo) {
+      case 'nombre':
+        return valores.nombre.trim() ? undefined : 'El nombre es obligatorio.';
+
+      case 'codigo': {
+        if (!valores.codigo.trim()) return 'El código es obligatorio.';
+        const duplicado = peliculas.some(
+          (p) =>
+            p.codigo.trim().toLowerCase() === valores.codigo.trim().toLowerCase() &&
+            p.id !== peliculaEditar?.id
+        );
+        return duplicado ? 'Ya existe una película registrada con este código.' : undefined;
+      }
+
+      case 'precio': {
+        if (valores.precio === '') return 'El precio es obligatorio.';
+        const precioNum = Number(valores.precio);
+        if (Number.isNaN(precioNum)) return 'Ingresa un precio válido.';
+        if (precioNum < 0) return 'El precio no puede ser negativo.';
+        if (precioNum === 0) return 'El precio debe ser mayor a 0.';
+        return undefined;
+      }
+
+      case 'duracion': {
+        if (valores.duracion === '') return 'La duración es obligatoria.';
+        const duracionNum = Number(valores.duracion);
+        if (Number.isNaN(duracionNum)) return 'Ingresa una duración válida.';
+        if (duracionNum < 0) return 'La duración no puede ser negativa.';
+        if (duracionNum === 0) return 'La duración debe ser mayor a 0.';
+        return undefined;
+      }
+
+      case 'genero':
+        return valores.genero.trim() ? undefined : 'El género es obligatorio.';
+
+      case 'clasificacion':
+        return valores.clasificacion.trim() ? undefined : 'La clasificación es obligatoria.';
+
+      case 'salaAsignada':
+        return valores.salaAsignada.trim() ? undefined : 'La sala asignada es obligatoria.';
+
+      default:
+        return undefined;
+    }
   };
 
-  // Procesa la imagen seleccionada por user
+  const CAMPOS_A_VALIDAR: CampoTexto[] = [
+    'codigo',
+    'nombre',
+    'genero',
+    'duracion',
+    'clasificacion',
+    'salaAsignada',
+    'precio',
+  ];
+
+  // Valida todos los campos de una vez (se usa al enviar)
+  const validarTodo = (valores: FormState): Errores => {
+    const nuevosErrores: Errores = {};
+    for (const campo of CAMPOS_A_VALIDAR) {
+      const mensaje = validarCampo(campo, valores);
+      if (mensaje) nuevosErrores[campo] = mensaje;
+    }
+    return nuevosErrores;
+  };
+
+  const actualizar = (campo: CampoTexto, valor: string) => {
+    const nuevoForm = { ...form, [campo]: valor };
+    setForm(nuevoForm);
+
+    // Si el campo ya fue tocado (o ya se intentó enviar), revalida en vivo
+    if (tocado[campo] || intentoEnviar) {
+      setErrores((prev) => ({ ...prev, [campo]: validarCampo(campo, nuevoForm) }));
+    }
+  };
+
+  const marcarTocado = (campo: CampoTexto) => {
+    setTocado((prev) => ({ ...prev, [campo]: true }));
+    setErrores((prev) => ({ ...prev, [campo]: validarCampo(campo, form) }));
+  };
+
   const handleImagenSeleccionada = (e: ChangeEvent<HTMLInputElement>) => {
     const archivo = e.target.files?.[0];
     if (!archivo) return;
@@ -101,51 +183,16 @@ export default function FormularioPelicula({
     setForm((prev) => ({ ...prev, posterImage: '' }));
   };
 
-  // Valida todos los campos antes de guardar
-  const validar = (): Errores => {
-    const nuevosErrores: Errores = {};
-
-    if (!form.nombre.trim()) {
-      nuevosErrores.nombre = 'El nombre es obligatorio.';
-    }
-
-    if (!form.codigo.trim()) {
-      nuevosErrores.codigo = 'El código es obligatorio.';
-    } else {
-      const codigoDuplicado = peliculas.some(
-        (p) =>
-          p.codigo.toLowerCase() === form.codigo.trim().toLowerCase() &&
-          p.id !== peliculaEditar?.id
-      );
-      if (codigoDuplicado) {
-        nuevosErrores.codigo = 'Ya existe una película con este código.';
-      }
-    }
-
-    const precioNum = Number(form.precio);
-    if (form.precio === '' || Number.isNaN(precioNum) || precioNum <= 0) {
-      nuevosErrores.precio = 'El precio debe ser un número positivo.';
-    }
-
-    const duracionNum = Number(form.duracion);
-    if (form.duracion === '' || Number.isNaN(duracionNum) || duracionNum <= 0) {
-      nuevosErrores.duracion = 'Ingresa una duración válida.';
-    }
-
-    if (!form.genero.trim()) nuevosErrores.genero = 'Requerido.';
-    if (!form.clasificacion.trim()) nuevosErrores.clasificacion = 'Requerido.';
-    if (!form.salaAsignada.trim()) nuevosErrores.salaAsignada = 'Requerido.';
-
-    return nuevosErrores;
-  };
-
-  // Procesa el envío del form
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    const nuevosErrores = validar();
+    setIntentoEnviar(true);
+
+    const nuevosErrores = validarTodo(form);
     setErrores(nuevosErrores);
+
     if (Object.keys(nuevosErrores).length > 0) return;
 
+    // Construye objeto pelicula con los datos ingresados
     const payload: Pelicula = {
       id: peliculaEditar?.id ?? crypto.randomUUID(),
       codigo: form.codigo.trim(),
@@ -162,7 +209,7 @@ export default function FormularioPelicula({
       posterImage: form.posterImage || undefined,
     };
 
-     // Agrega pelí nueva o actualiza una existente
+    // Decide si agrega una nueva o actualiza existente
     if (peliculaEditar) {
       dispatch(editarPelicula(payload));
     } else {
@@ -172,8 +219,8 @@ export default function FormularioPelicula({
     onClose();
   };
 
+  const hayErrores = Object.values(errores).some(Boolean);
 
-  // modal
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-card" onClick={(e) => e.stopPropagation()}>
@@ -186,14 +233,22 @@ export default function FormularioPelicula({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit}>
+        {intentoEnviar && hayErrores && (
+          <div className="form-alert" role="alert">
+            Revisa los campos marcados en rojo antes de continuar.
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} noValidate>
           <div className="form-grid">
             <div className={`form-field ${errores.codigo ? 'has-error' : ''}`}>
               <label>Código</label>
               <input
                 value={form.codigo}
                 onChange={(e) => actualizar('codigo', e.target.value)}
+                onBlur={() => marcarTocado('codigo')}
                 placeholder="PEL-006"
+                aria-invalid={Boolean(errores.codigo)}
               />
               {errores.codigo && <span className="field-error">{errores.codigo}</span>}
             </div>
@@ -203,7 +258,9 @@ export default function FormularioPelicula({
               <input
                 value={form.nombre}
                 onChange={(e) => actualizar('nombre', e.target.value)}
+                onBlur={() => marcarTocado('nombre')}
                 placeholder="Título de la película"
+                aria-invalid={Boolean(errores.nombre)}
               />
               {errores.nombre && <span className="field-error">{errores.nombre}</span>}
             </div>
@@ -213,7 +270,9 @@ export default function FormularioPelicula({
               <input
                 value={form.genero}
                 onChange={(e) => actualizar('genero', e.target.value)}
+                onBlur={() => marcarTocado('genero')}
                 placeholder="Acción, Comedia..."
+                aria-invalid={Boolean(errores.genero)}
               />
               {errores.genero && <span className="field-error">{errores.genero}</span>}
             </div>
@@ -222,9 +281,12 @@ export default function FormularioPelicula({
               <label>Duración (min)</label>
               <input
                 type="number"
+                min="0"
                 value={form.duracion}
                 onChange={(e) => actualizar('duracion', e.target.value)}
+                onBlur={() => marcarTocado('duracion')}
                 placeholder="120"
+                aria-invalid={Boolean(errores.duracion)}
               />
               {errores.duracion && <span className="field-error">{errores.duracion}</span>}
             </div>
@@ -234,7 +296,9 @@ export default function FormularioPelicula({
               <input
                 value={form.clasificacion}
                 onChange={(e) => actualizar('clasificacion', e.target.value)}
+                onBlur={() => marcarTocado('clasificacion')}
                 placeholder="A, B, C"
+                aria-invalid={Boolean(errores.clasificacion)}
               />
               {errores.clasificacion && (
                 <span className="field-error">{errores.clasificacion}</span>
@@ -246,7 +310,9 @@ export default function FormularioPelicula({
               <input
                 value={form.salaAsignada}
                 onChange={(e) => actualizar('salaAsignada', e.target.value)}
+                onBlur={() => marcarTocado('salaAsignada')}
                 placeholder="Sala 1"
+                aria-invalid={Boolean(errores.salaAsignada)}
               />
               {errores.salaAsignada && (
                 <span className="field-error">{errores.salaAsignada}</span>
@@ -257,19 +323,26 @@ export default function FormularioPelicula({
               <label>Precio ($)</label>
               <input
                 type="number"
+                min="0"
                 step="0.01"
                 value={form.precio}
                 onChange={(e) => actualizar('precio', e.target.value)}
+                onBlur={() => marcarTocado('precio')}
                 placeholder="4.50"
+                aria-invalid={Boolean(errores.precio)}
               />
               {errores.precio && <span className="field-error">{errores.precio}</span>}
             </div>
 
             <div className="form-field full">
-              <label>Poster </label>
+              <label>Poster (opcional)</label>
               <div className="poster-upload">
                 {form.posterImage ? (
-                  <img src={form.posterImage} alt="Vista previa del poster" className="poster-preview" />
+                  <img
+                    src={form.posterImage}
+                    alt="Vista previa del poster"
+                    className="poster-preview"
+                  />
                 ) : (
                   <div className="poster-preview poster-preview-empty">Sin imagen</div>
                 )}
@@ -297,7 +370,9 @@ export default function FormularioPelicula({
               <label>Estado</label>
               <select
                 value={form.estado}
-                onChange={(e) => actualizar('estado', e.target.value as EstadoPelicula)}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, estado: e.target.value as EstadoPelicula }))
+                }
               >
                 <option value="disponible">Disponible</option>
                 <option value="no disponible">No disponible</option>
