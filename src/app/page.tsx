@@ -2,23 +2,29 @@
 
 import { useMemo, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
-import { eliminarPelicula, cambiarEstadoPelicula } from '@/redux/slices/peliculasSlice'; 
+import { eliminarPelicula, cambiarEstadoPelicula } from '@/redux/slices/peliculasSlice';
 import { Pelicula } from '@/types/pelicula';
 import Buscador from '@/components/Buscador';
 import Filtros, { FiltrosState, FILTROS_INICIALES, TODOS } from '@/components/Filtros';
 import TablaPeliculas from '@/components/TablaPeliculas';
 import FormularioPelicula from '@/components/FormularioPelicula';
 
+// Vistas en el nav. "ventas", "inicio" y "configuracion" son
+// placeholders por ahora cada una va llenando la suya.
+type Vista = 'inicio' | 'peliculas' | 'ventas' | 'configuracion';
+
 export default function Home() {
   const dispatch = useAppDispatch();
-  const peliculas = useAppSelector((state) => state.peliculas.lista);  // Obtiene la lista de pelis almacenadas en Redux
+  const peliculas = useAppSelector((state) => state.peliculas.lista); // Obtiene la lista de pelis almacenadas en Redux
+
+  const [vista, setVista] = useState<Vista>('peliculas'); // Controla qué sección del nav se muestra
 
   const [busqueda, setBusqueda] = useState(''); // Estado para el texto ingresado en el buscador
-  const [filtros, setFiltros] = useState<FiltrosState>(FILTROS_INICIALES); 
+  const [filtros, setFiltros] = useState<FiltrosState>(FILTROS_INICIALES);
   const [modalAbierto, setModalAbierto] = useState(false);
   const [peliculaEditar, setPeliculaEditar] = useState<Pelicula | null>(null);
 
-  // Filtra las películas según la búsqueda y los filtros 
+  // Filtra las películas según la búsqueda y los filtros
   const peliculasFiltradas = useMemo(() => {
     const termino = busqueda.trim().toLowerCase();
 
@@ -75,37 +81,76 @@ export default function Home() {
         <div className="navbar-left">
           <span className="brand">CINEFLIX</span>
           <ul className="nav-links">
-            <li>Inicio</li>
-            <li className="active">Películas</li>          
-            <li>Ventas</li>
-            <li>Configuración</li>
+            <li className={vista === 'inicio' ? 'active' : ''} onClick={() => setVista('inicio')}>
+              Inicio
+            </li>
+            <li
+              className={vista === 'peliculas' ? 'active' : ''}
+              onClick={() => setVista('peliculas')}
+            >
+              Películas
+            </li>
+            <li className={vista === 'ventas' ? 'active' : ''} onClick={() => setVista('ventas')}>
+              Ventas
+            </li>
+            <li
+              className={vista === 'configuracion' ? 'active' : ''}
+              onClick={() => setVista('configuracion')}
+            >
+              Configuración
+            </li>
           </ul>
         </div>
       </nav>
 
-      {/* Muestra cuántas pelis cumplen los filtros */}
       <main className="main-content">
-        <h1 className="page-title">Gestión de Películas</h1>
-        <p className="page-subtitle">
-          {peliculasFiltradas.length} de {peliculas.length} películas
-        </p>
+        {/* ---------- Vista: Películas ---------- */}
+        {vista === 'peliculas' && (
+          <>
+            <h1 className="page-title">Gestión de Películas</h1>
+            <p className="page-subtitle">
+              {peliculasFiltradas.length} de {peliculas.length} películas
+            </p>
 
-        <div className="toolbar">
-          <div className="toolbar-filters">
-            <Buscador valor={busqueda} onChange={setBusqueda} />
-            <Filtros peliculas={peliculas} filtros={filtros} onChange={setFiltros} />
-          </div>
-          <button className="btn-primary" onClick={abrirAgregar}>
-            + Agregar película
-          </button>
-        </div>
+            <div className="toolbar">
+              <div className="toolbar-filters">
+                <Buscador valor={busqueda} onChange={setBusqueda} />
+                <Filtros peliculas={peliculas} filtros={filtros} onChange={setFiltros} />
+              </div>
+              <button className="btn-primary" onClick={abrirAgregar}>
+                + Agregar película
+              </button>
+            </div>
 
-        <TablaPeliculas
-          peliculas={peliculasFiltradas}
-          onEditar={abrirEditar}
-          onEliminar={handleEliminar}
-          onToggleEstado={(id) => dispatch(cambiarEstadoPelicula(id))}
-        />
+            <TablaPeliculas
+              peliculas={peliculasFiltradas}
+              onEditar={abrirEditar}
+              onEliminar={handleEliminar}
+              onToggleEstado={(id) => dispatch(cambiarEstadoPelicula(id))}
+            />
+          </>
+        )}
+
+        {/* ---------- Vista: Inicio (aqui pondremos algun carrousel) ---------- */}
+        {vista === 'inicio' && (
+          <>
+            <h1 className="page-title">Inicio</h1>
+          </>
+        )}
+
+        {/* ---------- Vista: Ventas = Dashboard (placeholder, aquí te toca el flujo de venta) ---------- */}
+        {vista === 'ventas' && (
+          <>
+            <h1 className="page-title">Dashboard</h1>
+          </>
+        )}
+       
+        {/* ---------- Vista: Configuración (placeholder) ---------- */}
+        {vista === 'configuracion' && (
+          <>
+            <h1 className="page-title">Configuración</h1>
+          </>
+        )}
       </main>
 
       {modalAbierto && (

@@ -83,6 +83,13 @@ button {
   margin: 0;
   padding: 0;
 }
+.nav-links li {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+  transition: color 0.2s ease;
+  cursor: pointer;   /* ← agrega esta línea */
+}
 
 .nav-links li {
   font-size: 14px;
@@ -494,6 +501,8 @@ table.peliculas-table {
   gap: 10px;
   margin-top: 22px;
 }
+
+
 
 @media (max-width: 640px) {
   .navbar {
