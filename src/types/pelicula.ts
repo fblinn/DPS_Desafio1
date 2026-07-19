@@ -11,7 +11,7 @@ export interface Pelicula {
   salaAsignada: string;
   precio: number;
   estado: EstadoPelicula;
-  posterColor?: string; posterImage?: string;// color para el placeholder de poster
+  posterColor?: string; posterImage?: string;// imagen o color para el placeholder de poster
 }
 
 // Payload usado por el formulario (sin id ya que se genera al crear)

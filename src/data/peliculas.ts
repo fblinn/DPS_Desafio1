@@ -12,7 +12,7 @@ export const peliculas: Pelicula[] = [
     salaAsignada: 'Sala 1',
     precio: 5.5,
     estado: 'disponible',
-    posterColor: '#1E3A8A',
+    posterImage: '/image/aven.jpg',
   },
   {
     id: '2',
@@ -24,7 +24,7 @@ export const peliculas: Pelicula[] = [
     salaAsignada: 'Sala 2',
     precio: 5.0,
     estado: 'disponible',
-    posterColor: '#DC2626',
+    posterImage: '/image/spider.jpg',
   },
   {
     id: '3',
@@ -36,7 +36,7 @@ export const peliculas: Pelicula[] = [
     salaAsignada: 'Sala 3',
     precio: 5.25,
     estado: 'disponible',
-    posterColor: '#0F172A',
+    posterImage: '/image/inter.jpg',
   },
   {
     id: '4',
@@ -48,7 +48,7 @@ export const peliculas: Pelicula[] = [
     salaAsignada: 'Sala 4',
     precio: 4.5,
     estado: 'disponible',
-    posterColor: '#2563EB',
+    posterImage: '/image/titan.jpg',
   },
   {
     id: '5',
@@ -60,7 +60,7 @@ export const peliculas: Pelicula[] = [
     salaAsignada: 'Sala 1',
     precio: 4.0,
     estado: 'disponible',
-    posterColor: '#EC4899',
+    posterImage: '/image/yat.jpg',
   },
   {
     id: '6',
@@ -72,7 +72,7 @@ export const peliculas: Pelicula[] = [
     salaAsignada: 'Sala 2',
     precio: 4.75,
     estado: 'disponible',
-    posterColor: '#111827',
+    posterImage: '/image/conjuro.jpg',
   },
   {
     id: '7',
@@ -84,7 +84,7 @@ export const peliculas: Pelicula[] = [
     salaAsignada: 'Sala 5',
     precio: 3.75,
     estado: 'disponible',
-    posterColor: '#F59E0B',
+    posterImage: '/image/ts4.jpg',
   },
   {
     id: '8',
@@ -96,7 +96,7 @@ export const peliculas: Pelicula[] = [
     salaAsignada: 'Sala 5',
     precio: 3.5,
     estado: 'disponible',
-    posterColor: '#22C55E',
+    posterImage: '/image/shrek.jpg',
   },
   {
     id: '9',
@@ -108,19 +108,19 @@ export const peliculas: Pelicula[] = [
     salaAsignada: 'Sala 3',
     precio: 5.0,
     estado: 'disponible',
-    posterColor: '#15803D',
+    posterImage: '/image/jurass.jpg',
   },
   {
     id: '10',
     codigo: 'PEL-010',
-    nombre: 'Frozen II',
+    nombre: 'Frozen 2',
     genero: 'Animación',
     duracion: 103,
     clasificacion: 'A',
     salaAsignada: 'Sala 4',
     precio: 4.0,
     estado: 'no disponible',
-    posterColor: '#38BDF8',
+    posterImage: '/image/froz.jpg',
   },
   {
     id: '11',
@@ -132,7 +132,7 @@ export const peliculas: Pelicula[] = [
     salaAsignada: 'Sala 2',
     precio: 4.75,
     estado: 'disponible',
-    posterColor: '#9333EA',
+    posterImage: '/image/jok.jpg',
   },
   {
     id: '12',
@@ -144,7 +144,7 @@ export const peliculas: Pelicula[] = [
     salaAsignada: 'Sala 1',
     precio: 5.25,
     estado: 'disponible',
-    posterColor: '#6B7280',
+    posterImage: '/image/rf.jpg',
   },
   {
     id: '13',
@@ -156,7 +156,7 @@ export const peliculas: Pelicula[] = [
     salaAsignada: 'Sala 5',
     precio: 4.5,
     estado: 'disponible',
-    posterColor: '#F97316',
+    posterImage: '/image/int2.jpg',
   },
   {
     id: '14',
@@ -168,7 +168,7 @@ export const peliculas: Pelicula[] = [
     salaAsignada: 'Sala 3',
     precio: 5.5,
     estado: 'disponible',
-    posterColor: '#7C2D12',
+    posterImage: '/image/open.jpg',
   },
   {
     id: '15',
@@ -180,6 +180,6 @@ export const peliculas: Pelicula[] = [
     salaAsignada: 'Sala 4',
     precio: 5.75,
     estado: 'disponible',
-    posterColor: '#0EA5E9',
+    posterImage: '/image/avatar.jpg',
   },
 ];
