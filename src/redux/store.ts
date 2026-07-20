@@ -3,19 +3,7 @@ import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import peliculasReducer from '@/redux/slices/peliculasSlice';
 import reservasReducer from '@/redux/slices/reservasSlice';
 import salasReducer from '@/redux/slices/salasSlice';
-import seatsReducer from '@/redux/slices/asientoSlice';
 
-<<<<<<< Updated upstream
-// Configuración del store principal de Redux
-export const store = configureStore({
-  reducer: {
-    // Reducer encargado de administrar las películas
-    peliculas: peliculasReducer,
-    reservas: reservasReducer,
-    salas: salasReducer,
-    seats: seatsReducer,
-  },
-=======
 import { persistReducer, persistStore } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
@@ -25,7 +13,6 @@ const rootReducer = combineReducers({
   peliculas: peliculasReducer,
   reservas: reservasReducer,
   salas: salasReducer,
->>>>>>> Stashed changes
 });
 
 
