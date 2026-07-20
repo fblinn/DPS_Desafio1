@@ -91,7 +91,6 @@ export default function SeatMapModal() {
               <LegendItem className="seatmap-seat--disponible" label="Disponible" />
               <LegendItem className="seatmap-seat--seleccionado" label="Seleccionado" />
               <LegendItem className="seatmap-seat--ocupado" label="Ocupado" />
-              <LegendItem className="seatmap-seat--preferencial" label="Preferencial" />
             </div>
           </div>
 
