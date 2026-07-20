@@ -37,7 +37,7 @@ export default function Home() {
   const peliculasFiltradas = useMemo(() => {
     const termino = busqueda.trim().toLowerCase();
 
-    return peliculas.filter((p) => {
+    return peliculas.filter((p: { nombre: string; genero: string; salaAsignada: string; clasificacion: string; estado: string; }) => {
       const coincideBusqueda =
         termino === '' ||
         p.nombre.toLowerCase().includes(termino) ||
