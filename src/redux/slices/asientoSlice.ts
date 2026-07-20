@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-export type asientoEstatus = "disponible" | "ocupado" | "preferencial";
+export type EstadoAsiento = "disponible" | "ocupado";
 
 export interface Cliente {
   nombre: string;
@@ -8,98 +8,133 @@ export interface Cliente {
   telefono: string;
 }
 
-export interface asientoEstatus {
-  rows: string[];
-  leftSeats: number;
-  rightSeats: number;
-  pricePerSeat: number;
-  seats: Record<string, SeatStatus>;
-  selected: string[];
+export interface EstadoAsientos {
+  filas: string[];
+  asientosIzquierda: number;
+  asientosDerecha: number;
+  precioPorAsiento: number;
+  asientos: Record<string, EstadoAsiento>;
+  asientosSeleccionados: string[];
   cliente: Cliente;
-  isOpen: boolean;
+  modalAbierto: boolean;
 }
 
-const ROWS = ["A", "B", "C", "D", "E", "F", "G", "H"];
-const LEFT_SEATS = 5;
-const RIGHT_SEATS = 5;
-const PRICE_PER_SEAT = 10;
+const FILAS = ["A", "B", "C", "D", "E", "F", "G", "H"];
+const ASIENTOS_IZQUIERDA = 5;
+const ASIENTOS_DERECHA = 5;
+const PRECIO_POR_ASIENTO = 10;
 
-const OCCUPIED = new Set(["B-2", "C-4", "D-3", "D-7", "E-5", "F-3", "F-8"]);
-const PREFERENTIAL = new Set(["G-1", "G-2", "G-9", "G-10"]);
+const ASIENTOS_OCUPADOS = new Set([
+  "B-2",
+  "C-4",
+  "D-3",
+  "D-7",
+  "E-5",
+  "F-3",
+  "F-8",
+]);
 
-function buildSeats(): Record<string, asientoEstatus> {
-  const seats: Record<string, SeatStatus> = {};
-  const total = LEFT_SEATS + RIGHT_SEATS;
-  ROWS.forEach((row) => {
+function construirAsientos(): Record<string, EstadoAsiento> {
+  const asientos: Record<string, EstadoAsiento> = {};
+  const total = ASIENTOS_IZQUIERDA + ASIENTOS_DERECHA;
+
+  FILAS.forEach((fila) => {
     for (let i = 1; i <= total; i++) {
-      const id = `${row}-${i}`;
-      let status: SeatStatus = "disponible";
-      if (OCCUPIED.has(id)) status = "ocupado";
-      else if (PREFERENTIAL.has(id)) status = "preferencial";
-      seats[id] = status;
+      const id = `${fila}-${i}`;
+
+      asientos[id] = ASIENTOS_OCUPADOS.has(id)
+        ? "ocupado"
+        : "disponible";
     }
   });
-  return seats;
+
+  return asientos;
 }
 
-const initialState: asientoEstatus = {
-  rows: ROWS,
-  leftSeats: LEFT_SEATS,
-  rightSeats: RIGHT_SEATS,
-  pricePerSeat: PRICE_PER_SEAT,
-  seats: buildSeats(),
-  selected: [],
-  cliente: { nombre: "", email: "", telefono: "" },
-  isOpen: false,
+const estadoInicial: EstadoAsientos = {
+  filas: FILAS,
+  asientosIzquierda: ASIENTOS_IZQUIERDA,
+  asientosDerecha: ASIENTOS_DERECHA,
+  precioPorAsiento: PRECIO_POR_ASIENTO,
+  asientos: construirAsientos(),
+  asientosSeleccionados: [],
+  cliente: {
+    nombre: "",
+    email: "",
+    telefono: "",
+  },
+  modalAbierto: false,
 };
 
 const asientoSlice = createSlice({
-  name: "seats",
-  initialState,
+  name: "asientos",
+  initialState: estadoInicial,
   reducers: {
-    openModal(state) {
-      state.isOpen = true;
+    abrirModal(state) {
+      state.modalAbierto = true;
     },
-    closeModal(state) {
-      state.isOpen = false;
-    },
-    toggleSeat(state, action: PayloadAction<string>) {
-      const id = action.payload;
-      if (state.seats[id] === "ocupado") return;
 
-      const idx = state.selected.indexOf(id);
-      if (idx >= 0) {
-        state.selected.splice(idx, 1);
+    cerrarModal(state) {
+      state.modalAbierto = false;
+    },
+
+    alternarAsiento(state, action: PayloadAction<string>) {
+      const id = action.payload;
+
+      if (state.asientos[id] === "ocupado") return;
+
+      const indice = state.asientosSeleccionados.indexOf(id);
+
+      if (indice >= 0) {
+        state.asientosSeleccionados.splice(indice, 1);
       } else {
-        state.selected.push(id);
+        state.asientosSeleccionados.push(id);
       }
     },
-    updateCliente(state, action: PayloadAction<Partial<Cliente>>) {
-      state.cliente = { ...state.cliente, ...action.payload };
+
+    actualizarCliente(state, action: PayloadAction<Partial<Cliente>>) {
+      state.cliente = {
+        ...state.cliente,
+        ...action.payload,
+      };
     },
-    resetSeleccion(state) {
-      state.selected = [];
-      state.cliente = { nombre: "", email: "", telefono: "" };
+
+    limpiarSeleccion(state) {
+      state.asientosSeleccionados = [];
+      state.cliente = {
+        nombre: "",
+        email: "",
+        telefono: "",
+      };
     },
-    // Útil si vas a cargar el estado real de asientos desde tu API
-    setSeats(state, action: PayloadAction<Record<string, SeatStatus>>) {
-      state.seats = action.payload;
+
+    establecerAsientos(
+      state,
+      action: PayloadAction<Record<string, EstadoAsiento>>
+    ) {
+      state.asientos = action.payload;
     },
   },
 });
 
 export const {
-  openModal,
-  closeModal,
-  toggleSeat,
-  updateCliente,
-  resetSeleccion,
-  setSeats,
-} = seatsSlice.actions;
+  abrirModal,
+  cerrarModal,
+  alternarAsiento,
+  actualizarCliente,
+  limpiarSeleccion,
+  establecerAsientos,
+} = asientoSlice.actions;
 
 // Selectores
-export const selectSeatsState = (state: { seats: SeatsState }) => state.seats;
-export const selectTotal = (state: { seats: SeatsState }) =>
-  state.seats.selected.length * state.seats.pricePerSeat;
+export const seleccionarEstadoAsientos = (state: {
+  asientos: EstadoAsientos;
+}) => state.asientos;
 
-export default seatsSlice.reducer;
+export const seleccionarTotal = (state: {
+  asientos: EstadoAsientos;
+}) =>
+  state.asientos.asientosSeleccionados.length *
+  state.asientos.precioPorAsiento;
+
+export default asientoSlice.reducer;

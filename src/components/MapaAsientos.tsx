@@ -1,58 +1,92 @@
 import React from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+
 import {
-  selectSeatsState,
-  selectTotal,
-  closeModal,
-  toggleSeat,
-  updateCliente,
-  resetSeleccion,
+  seleccionarEstadoAsientos,
+  seleccionarTotal,
+  cerrarModal,
+  alternarAsiento,
+  actualizarCliente,
+  limpiarSeleccion,
 } from "@/redux/slices/asientoSlice";
-import "@/app/globals.css"; 
 
-export default function SeatMapModal() {
+import "@/app/globals.css";
+
+export default function MapaAsientos() {
+
   const dispatch = useDispatch();
-  const { rows, leftSeats, rightSeats, seats, selected, cliente, isOpen } =
-    useSelector(selectSeatsState);
-  const total = useSelector(selectTotal);
 
-  if (!isOpen) return null;
+  const {
+    filas,
+    asientosIzquierda,
+    asientosDerecha,
+    asientos,
+    asientosSeleccionados,
+    cliente,
+    modalAbierto,
+  } = useSelector(seleccionarEstadoAsientos);
 
-  const getSeatClass = (id: string): string => {
-    if (selected.includes(id)) return "seatmap-seat seatmap-seat--seleccionado";
-    return `seatmap-seat seatmap-seat--${seats[id]}`;
+  const total = useSelector(seleccionarTotal);
+
+  if (!modalAbierto) return null;
+
+  const obtenerClaseAsiento = (id: string): string => {
+
+    if (asientosSeleccionados.includes(id))
+      return "seatmap-seat seatmap-seat--seleccionado";
+
+    return `seatmap-seat seatmap-seat--${asientos[id]}`;
   };
 
-  const handleConfirm = () => {
-    if (selected.length === 0) {
+  const confirmarCompra = () => {
+
+    if (asientosSeleccionados.length === 0) {
       alert("Selecciona al menos un asiento.");
       return;
     }
+
     if (!cliente.nombre || !cliente.email) {
-      alert("Completa nombre y email.");
+      alert("Completa el nombre y el correo.");
       return;
     }
 
-    // Aquí conectas tu llamada real a la API (thunk, RTK Query, etc.)
-    console.log("Confirmando compra:", { asientos: selected, total, cliente });
-    alert(`Compra confirmada: ${selected.length} asiento(s) por $${total.toFixed(2)}`);
+    console.log({
+      asientos: asientosSeleccionados,
+      total,
+      cliente,
+    });
 
-    dispatch(resetSeleccion());
-    dispatch(closeModal());
+    alert(
+      `Compra confirmada: ${asientosSeleccionados.length} asiento(s) por $${total.toFixed(
+        2
+      )}`
+    );
+
+    dispatch(limpiarSeleccion());
+    dispatch(cerrarModal());
   };
 
-  const renderSeatGroup = (row: string, from: number, to: number) => {
-    const seatIds: string[] = [];
-    for (let n = from; n <= to; n++) seatIds.push(`${row}-${n}`);
+  const renderizarGrupoAsientos = (
+    fila: string,
+    inicio: number,
+    fin: number
+  ) => {
+
+    const ids: string[] = [];
+
+    for (let i = inicio; i <= fin; i++) {
+      ids.push(`${fila}-${i}`);
+    }
+
     return (
       <div className="seatmap-seat-group">
-        {seatIds.map((id) => (
+        {ids.map((id) => (
           <button
             key={id}
             title={id}
-            disabled={seats[id] === "ocupado"}
-            onClick={() => dispatch(toggleSeat(id))}
-            className={getSeatClass(id)}
+            disabled={asientos[id] === "ocupado"}
+            onClick={() => dispatch(alternarAsiento(id))}
+            className={obtenerClaseAsiento(id)}
           />
         ))}
       </div>
@@ -61,97 +95,178 @@ export default function SeatMapModal() {
 
   return (
     <div className="seatmap-overlay">
+
       <div className="seatmap-modal">
+
         <div className="seatmap-header">
+
           <h2>Mapa de asientos</h2>
+
           <button
             className="seatmap-close-btn"
-            onClick={() => dispatch(closeModal())}
-            aria-label="Cerrar"
+            onClick={() => dispatch(cerrarModal())}
           >
             ✕
           </button>
+
         </div>
 
         <div className="seatmap-body">
-          <div className="seatmap-map">
-            <div className="seatmap-screen">PANTALLA</div>
-            <p className="seatmap-sala">Sala 1</p>
 
-            {rows.map((row) => (
-              <div key={row} className="seatmap-row">
-                <span className="seatmap-row-label">{row}</span>
-                {renderSeatGroup(row, 1, leftSeats)}
+          <div className="seatmap-map">
+
+            <div className="seatmap-screen">
+              PANTALLA
+            </div>
+
+            <p className="seatmap-sala">
+              Sala 1
+            </p>
+
+            {filas.map((fila) => (
+
+              <div
+                key={fila}
+                className="seatmap-row"
+              >
+
+                <span className="seatmap-row-label">
+                  {fila}
+                </span>
+
+                {renderizarGrupoAsientos(
+                  fila,
+                  1,
+                  asientosIzquierda
+                )}
+
                 <div className="seatmap-aisle" />
-                {renderSeatGroup(row, leftSeats + 1, leftSeats + rightSeats)}
+
+                {renderizarGrupoAsientos(
+                  fila,
+                  asientosIzquierda + 1,
+                  asientosIzquierda + asientosDerecha
+                )}
+
               </div>
+
             ))}
 
             <div className="seatmap-legend">
-              <LegendItem className="seatmap-seat--disponible" label="Disponible" />
-              <LegendItem className="seatmap-seat--seleccionado" label="Seleccionado" />
-              <LegendItem className="seatmap-seat--ocupado" label="Ocupado" />
+
+              <ItemLeyenda
+                className="seatmap-seat--disponible"
+                label="Disponible"
+              />
+
+              <ItemLeyenda
+                className="seatmap-seat--seleccionado"
+                label="Seleccionado"
+              />
+
+              <ItemLeyenda
+                className="seatmap-seat--ocupado"
+                label="Ocupado"
+              />
+
             </div>
+
           </div>
 
           <div className="seatmap-sidebar">
+
             <h3>Resumen de selección</h3>
+
             <div className="seatmap-summary-row">
-              <span className="seatmap-summary-label">Asientos seleccionados</span>
-              <span className="seatmap-summary-value">{selected.length}</span>
-            </div>
-            <div className="seatmap-summary-row">
-              <span className="seatmap-summary-label">Total a pagar</span>
-              <span className="seatmap-summary-value">${total.toFixed(2)}</span>
+
+              <span>Asientos seleccionados</span>
+
+              <span>{asientosSeleccionados.length}</span>
+
             </div>
 
-            <hr className="seatmap-divider" />
+            <div className="seatmap-summary-row">
+
+              <span>Total a pagar</span>
+
+              <span>${total.toFixed(2)}</span>
+
+            </div>
+
+            <hr />
 
             <h4>Datos del cliente</h4>
 
-            <div className="seatmap-field">
-              <label>Nombre</label>
-              <input
-                value={cliente.nombre}
-                onChange={(e) => dispatch(updateCliente({ nombre: e.target.value }))}
-              />
-            </div>
-            <div className="seatmap-field">
-              <label>Email</label>
-              <input
-                type="email"
-                value={cliente.email}
-                onChange={(e) => dispatch(updateCliente({ email: e.target.value }))}
-              />
-            </div>
-            <div className="seatmap-field">
-              <label>Teléfono</label>
-              <input
-                value={cliente.telefono}
-                onChange={(e) => dispatch(updateCliente({ telefono: e.target.value }))}
-              />
-            </div>
+            <input
+              placeholder="Nombre"
+              value={cliente.nombre}
+              onChange={(e) =>
+                dispatch(
+                  actualizarCliente({
+                    nombre: e.target.value,
+                  })
+                )
+              }
+            />
 
-            <button className="seatmap-confirm-btn" onClick={handleConfirm}>
+            <input
+              placeholder="Correo"
+              value={cliente.email}
+              onChange={(e) =>
+                dispatch(
+                  actualizarCliente({
+                    email: e.target.value,
+                  })
+                )
+              }
+            />
+
+            <input
+              placeholder="Teléfono"
+              value={cliente.telefono}
+              onChange={(e) =>
+                dispatch(
+                  actualizarCliente({
+                    telefono: e.target.value,
+                  })
+                )
+              }
+            />
+
+            <button
+              className="seatmap-confirm-btn"
+              onClick={confirmarCompra}
+            >
               Confirmar y pagar
             </button>
+
           </div>
+
         </div>
+
       </div>
+
     </div>
   );
 }
 
-interface LegendItemProps {
+interface ItemLeyendaProps {
   className: string;
   label: string;
 }
 
-function LegendItem({ className, label }: LegendItemProps) {
+function ItemLeyenda({
+  className,
+  label,
+}: ItemLeyendaProps) {
+
   return (
     <div className="seatmap-legend-item">
+
       <span className={`seatmap-legend-swatch ${className}`} />
-      <span className="seatmap-legend-color">{label}</span>
+
+      <span>{label}</span>
+
     </div>
   );
 }
