@@ -1,3 +1,4 @@
+'use client';
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
 
 import peliculasReducer from "@/redux/slices/peliculasSlice";

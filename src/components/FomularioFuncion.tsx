@@ -26,6 +26,11 @@ export default function FormularioFuncion({
   const [idioma, setIdioma] = useState<IdiomaFuncion>("Sub");
   const [error, setError] = useState("");
 
+  // Fecha de hoy para comparar  evitar que el usuario pueda elegir
+  // un dia pasado 
+  const hoy = new Date();
+  const fechaHoy = hoy.toISOString().split("T")[0];
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -33,6 +38,26 @@ export default function FormularioFuncion({
       setError("Completa sala, fecha y hora.");
       return;
     }
+
+     // No permitir una fecha anterior a hoy
+    if (fecha < fechaHoy) {
+      setError("No puedes registrar una función en una fecha anterior a hoy.");
+      return;
+    }
+
+    // Si la fecha elegida es hoy, la hora no puede ser anterior a la hora actual
+    if (fecha === fechaHoy) {
+      const horaActual = `${String(hoy.getHours()).padStart(2, "0")}:${String(
+        hoy.getMinutes()
+      ).padStart(2, "0")}`;
+ 
+      if (hora < horaActual) {
+        setError("No puedes registrar una función a una hora que ya pasó.");
+        return;
+      }
+    }
+    
+    setError("");
 
     dispatch(
       agregarFuncion({
@@ -83,6 +108,7 @@ export default function FormularioFuncion({
                 id="funcion-fecha"
                 name="fecha"
                 type="date"
+                min={fechaHoy}
                 value={fecha}
                 onChange={(e) => setFecha(e.target.value)}
               />
