@@ -94,6 +94,7 @@ export default function Home() {
     console.log("TODO: siguiente paso -> mapa de asientos", funcion);
   };
 
+
   return (
     <div className="app-shell">
       <nav className="navbar">
@@ -178,7 +179,7 @@ export default function Home() {
         )}
 
         {/* ---------- Vista: Ventas = Dashboard (placeholder, aquí te toca el flujo de venta) ---------- */}
-        {vista === 'ventas' && <Dashboard />}
+        {vista === 'ventas' && <Dashboard onNuevaVenta={handleNuevaVenta} />}
        
         {/* ---------- Vista: Configuración (placeholder) ---------- */}
         {vista === 'configuracion' && (

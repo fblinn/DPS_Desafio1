@@ -1,16 +1,16 @@
 "use client";
 
 import { useSelector } from "react-redux";
-import type { RootState } from "@/redux/store"; // TODO: ajusta la ruta real si es distinta
+import type { RootState } from "@/redux/store"; 
 import {
   selectEntradasVendidasHoy,
   selectIngresosHoy,
   selectVentasPorDia,
-} from "@/redux/slices/reservasSlice"; // TODO: ajusta la ruta real
+} from "@/redux/slices/reservasSlice"; 
 import {
   selectTotalFuncionesDisponibles,
   selectFuncionesAIniciar,
-} from "@/redux/slices/salasSlice"; // TODO: ajusta la ruta real
+} from "@/redux/slices/salasSlice"; 
 import {
   LineChart,
   Line,
@@ -20,10 +20,11 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-export default function Dashboard() {
-  // ----------------------------------------------------------------
-  // SELECTORES DE REDUX
-  // ----------------------------------------------------------------
+interface DashboardProps {
+  onNuevaVenta: () => void;
+}
+
+export default function Dashboard({ onNuevaVenta }: DashboardProps) {
 
   const totalPeliculas = useSelector(
     (state: RootState) => state.peliculas.lista.length
@@ -40,16 +41,12 @@ export default function Dashboard() {
   const ventasSemana = useSelector(selectVentasPorDia);
   const funcionesAIniciar = useSelector(selectFuncionesAIniciar);
 
-  // TODO: Acción de "Nueva Venta" -> normalmente navega a un formulario o abre un modal
   const handleNuevaVenta = () => {
     console.log("TODO: abrir formulario / navegar a nueva venta");
   };
 
   return (
     <div className="dashboard">
-      {/* ---------------------------------------------------------- */}
-      {/* Tarjetas resumen */}
-      {/* ---------------------------------------------------------- */}
       <div className="dashboard-cards">
         <TarjetaResumen
           titulo="Total Películas"
@@ -63,7 +60,7 @@ export default function Dashboard() {
 
       {/* Botón nueva venta */}
       <div className="dashboard-actions">
-        <button onClick={handleNuevaVenta} className="btn-primary">
+        <button onClick={onNuevaVenta}  className="btn-primary">
           + NUEVA VENTA
         </button>
       </div>
