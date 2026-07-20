@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-export type SeatStatus = "disponible" | "ocupado" | "preferencial";
+export type asientoEstatus = "disponible" | "ocupado" | "preferencial";
 
 export interface Cliente {
   nombre: string;
@@ -8,7 +8,7 @@ export interface Cliente {
   telefono: string;
 }
 
-export interface SeatsState {
+export interface asientoEstatus {
   rows: string[];
   leftSeats: number;
   rightSeats: number;
@@ -27,7 +27,7 @@ const PRICE_PER_SEAT = 10;
 const OCCUPIED = new Set(["B-2", "C-4", "D-3", "D-7", "E-5", "F-3", "F-8"]);
 const PREFERENTIAL = new Set(["G-1", "G-2", "G-9", "G-10"]);
 
-function buildSeats(): Record<string, SeatStatus> {
+function buildSeats(): Record<string, asientoEstatus> {
   const seats: Record<string, SeatStatus> = {};
   const total = LEFT_SEATS + RIGHT_SEATS;
   ROWS.forEach((row) => {
@@ -42,7 +42,7 @@ function buildSeats(): Record<string, SeatStatus> {
   return seats;
 }
 
-const initialState: SeatsState = {
+const initialState: asientoEstatus = {
   rows: ROWS,
   leftSeats: LEFT_SEATS,
   rightSeats: RIGHT_SEATS,
@@ -53,7 +53,7 @@ const initialState: SeatsState = {
   isOpen: false,
 };
 
-const seatsSlice = createSlice({
+const asientoSlice = createSlice({
   name: "seats",
   initialState,
   reducers: {
@@ -97,7 +97,7 @@ export const {
   setSeats,
 } = seatsSlice.actions;
 
-// Selectores. Ajusta `RootState` si tu store no expone "seats" en la raíz.
+// Selectores
 export const selectSeatsState = (state: { seats: SeatsState }) => state.seats;
 export const selectTotal = (state: { seats: SeatsState }) =>
   state.seats.selected.length * state.seats.pricePerSeat;
