@@ -180,7 +180,7 @@ export default function Home() {
       )}
 
       {pasoVenta === 'peliculas' && (
-        <ModalSeleccionarPelicula
+        <ModalSeleccionPelicula
           peliculas={peliculas}
           onSeleccionar={(pelicula) => {
             setPeliculaSeleccionada(pelicula);
