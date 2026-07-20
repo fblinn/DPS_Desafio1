@@ -1,4 +1,3 @@
-
 import { useDispatch, useSelector } from "react-redux";
 import React, { useState } from "react";
 import "@/app/globals.css";
@@ -11,6 +10,7 @@ import {
   actualizarCliente,
   limpiarSeleccion,
 } from "@/redux/slices/asientoSlice";
+import { agregarReserva } from "@/redux/slices/reservasSlice";
 
 const REGEX_NOMBRE = /^[A-Za-zÀ-ÖØ-öø-ÿñÑ\s]*$/;
 const REGEX_TELEFONO = /^[0-9\s]*$/;
@@ -30,7 +30,13 @@ interface CompraConfirmada {
   cliente: { nombre: string; email: string; telefono: string };
 }
 
-export default function MapaAsientos() {
+interface MapaAsientosProps {
+  // Se dispara cuando el usuario cierra el recibo de la compra confirmada,
+  // para que el componente padre (Home) pueda, por ejemplo, cambiar de vista.
+  onCompraConfirmada?: () => void;
+}
+
+export default function MapaAsientos({ onCompraConfirmada }: MapaAsientosProps) {
 
   const dispatch = useDispatch();
 
@@ -42,6 +48,10 @@ export default function MapaAsientos() {
     asientosSeleccionados,
     cliente,
     modalAbierto,
+    peliculaId,
+    salaNombre,
+    fecha,
+    hora,
   } = useSelector(seleccionarEstadoAsientos);
 
   const total = useSelector(seleccionarTotal);
@@ -132,12 +142,32 @@ export default function MapaAsientos() {
     if (Object.keys(erroresValidacion).length > 0) {
       return;
     }
+
+    if (!peliculaId || !fecha || !hora) {
+      alert("No se encontró la función seleccionada. Vuelve a elegirla desde Películas.");
+      return;
+    }
  
     console.log({
       asientos: asientosSeleccionados,
       total,
       cliente,
     });
+
+    // Registra la venta en el historial (reservasSlice)
+    dispatch(
+      agregarReserva({
+        peliculaId,
+        sala: salaNombre ?? "",
+        fecha,
+        hora,
+        asientos: [...asientosSeleccionados],
+        clienteNombre: cliente.nombre,
+        clienteEmail: cliente.email,
+        clienteTelefono: cliente.telefono,
+        monto: total,
+      })
+    );
  
     setCompraConfirmada({
       asientos: [...asientosSeleccionados],
@@ -153,6 +183,7 @@ export default function MapaAsientos() {
   const cerrarConfirmacion = () => {
     setCompraConfirmada(null);
     dispatch(cerrarModal());
+    onCompraConfirmada?.();
   };
 
   const renderizarGrupoAsientos = (
@@ -210,7 +241,7 @@ export default function MapaAsientos() {
             </div>
 
             <p className="seatmap-sala">
-              Sala 1
+              {salaNombre ?? "Sala 1"}
             </p>
 
             {filas.map((fila) => (

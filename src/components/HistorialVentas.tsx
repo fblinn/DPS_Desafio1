@@ -1,4 +1,6 @@
-import React, { useEffect } from "react";
+"use client";
+
+import React, { useMemo, useState } from "react";
 import {
   Home,
   Film,
@@ -14,103 +16,37 @@ import {
 } from "lucide-react";
 
 import "./HistorialVentas.css";
-import { useAppDispatch, useAppSelector } from "./store/hooks";
-import {
-  filtroCriterioCambiado,
-  filtroFechaCambiado,
-  seleccionLimpiada,
-  selectFiltrosVenta,
-  selectTotalVentas,
-  selectVentaSeleccionada,
-  selectVentas,
-  ventaSeleccionada as ventaSeleccionadaAction,
-  ventasCargadas,
-} from "./store/ventaSlice";
-import {
-  peliculasCargadas,
-  selectPeliculaPorId,
-} from "./store/peliculasSlice";
-import type { CriterioBusqueda, Pelicula, Venta } from "./types";
-
-// ---------------------------------------------------------------------------
-// Datos de ejemplo para poblar las slices al montar la pantalla.
-// En una app real esto vendría de thunks (createAsyncThunk) que llaman
-// a la API y despachan `ventasCargadas` / `peliculasCargadas`.
-// ---------------------------------------------------------------------------
-
-const PELICULAS_EJEMPLO: Pelicula[] = [
-  { id: "p1", titulo: "Avengers: Endgame" },
-  { id: "p2", titulo: "The Lion King" },
-];
-
-const VENTAS_EJEMPLO: Venta[] = [
-  {
-    id: "10001",
-    fechaHora: "03/07/2026 10:30 am",
-    clienteNombre: "María López",
-    clienteEmail: "maria.lopez@email.com",
-    clienteTelefono: "7000-0000",
-    peliculaId: "p1",
-    funcion: "2D Sub",
-    boletos: 1,
-    precioBoleto: 13.0,
-    monto: 13.0,
-    estado: "Completa",
-  },
-  {
-    id: "10020",
-    fechaHora: "05/07/2026 11:55 am",
-    clienteNombre: "Carlos Ramírez",
-    clienteEmail: "carlos.ramirez@email.com",
-    clienteTelefono: "7111-1111",
-    peliculaId: "p1",
-    funcion: "3D Dob",
-    boletos: 1,
-    precioBoleto: 18.0,
-    monto: 18.0,
-    estado: "Completa",
-  },
-  {
-    id: "10030",
-    fechaHora: "09/07/2026 11:35 am",
-    clienteNombre: "Ana Martínez",
-    clienteEmail: "ana.martinez@email.com",
-    clienteTelefono: "7222-2222",
-    peliculaId: "p2",
-    funcion: "2D Sub",
-    boletos: 1,
-    precioBoleto: 16.0,
-    monto: 16.0,
-    estado: "Pendiente",
-  },
-];
-
-const TOTAL_VENTAS_EJEMPLO = 128;
+import { useAppSelector } from "@/redux/hooks";
+import { selectReservas } from "@/redux/slices/reservasSlice";
+import { selectPeliculaPorId } from "@/redux/slices/peliculasSlice";
+import type { EstadoReserva, Reserva } from "@/types/reserva";
 
 function formatMonto(monto: number) {
   return `$${monto.toFixed(2)}`;
 }
 
-const badgeClasePorEstado: Record<Venta["estado"], string> = {
-  Completa: "hv-badge-completa",
-  Pendiente: "hv-badge-pendiente",
-  Cancelada: "hv-badge-cancelada",
+function capitalizar(texto: string) {
+  return texto.charAt(0).toUpperCase() + texto.slice(1);
+}
+
+const badgeClasePorEstado: Record<EstadoReserva, string> = {
+  completa: "hv-badge-completa",
+  pendiente: "hv-badge-pendiente",
+  cancelada: "hv-badge-cancelada",
 };
 
 // ---------------------------------------------------------------------------
-// Resumen de compra (lee de la slice `venta`)
+// Resumen de compra (última reserva o la seleccionada en la tabla)
 // ---------------------------------------------------------------------------
 
-function ResumenCompra() {
-  const ventas = useAppSelector(selectVentas);
-  const seleccionada = useAppSelector(selectVentaSeleccionada);
-  const venta = seleccionada ?? ventas[0];
+interface ResumenCompraProps {
+  reserva: Reserva | undefined;
+}
 
-  if (!venta) {
+function ResumenCompra({ reserva }: ResumenCompraProps) {
+  if (!reserva) {
     return null;
   }
-
-  const total = venta.boletos * venta.precioBoleto;
 
   return (
     <aside className="hv-resumen">
@@ -118,24 +54,28 @@ function ResumenCompra() {
       <dl className="hv-resumen-list">
         <div className="hv-resumen-item">
           <dt className="hv-resumen-label">Nombre</dt>
-          <dd className="hv-resumen-value">{venta.clienteNombre}</dd>
+          <dd className="hv-resumen-value">{reserva.clienteNombre}</dd>
         </div>
         <div className="hv-resumen-item">
           <dt className="hv-resumen-label">Email/Tel</dt>
           <dd className="hv-resumen-value">
-            {venta.clienteTelefono ?? venta.clienteEmail ?? "—"}
+            {reserva.clienteTelefono || reserva.clienteEmail}
           </dd>
         </div>
         <div className="hv-resumen-item">
-          <dt className="hv-resumen-label">Boletos ({venta.boletos})</dt>
+          <dt className="hv-resumen-label">
+            Boletos ({reserva.asientos.length})
+          </dt>
           <dd className="hv-resumen-value">
-            {formatMonto(venta.precioBoleto)}
+            {reserva.asientos.join(", ")}
           </dd>
         </div>
       </dl>
       <div className="hv-resumen-total">
         <span className="hv-resumen-total-label">Total a Pagar</span>
-        <span className="hv-resumen-total-value">{formatMonto(total)}</span>
+        <span className="hv-resumen-total-value">
+          {formatMonto(reserva.monto)}
+        </span>
       </div>
     </aside>
   );
@@ -191,18 +131,26 @@ function NavBar({ vistaActiva, onCambiarVista }: NavBarProps) {
 }
 
 // ---------------------------------------------------------------------------
-// Filtros (leen y escriben en la slice `venta`)
+// Filtros — estado local: tu reservasSlice no guarda filtros, así que no
+// hay necesidad de que vivan en Redux. Filtran el arreglo en el propio
+// componente antes de pasarlo a la tabla.
 // ---------------------------------------------------------------------------
 
-function Filtros() {
-  const dispatch = useAppDispatch();
-  const filtros = useAppSelector(selectFiltrosVenta);
+type CriterioBusqueda = "fecha" | "cliente" | "pelicula" | "estado";
 
-  const handleBuscar = () => {
-    // Punto de integración: disparar la consulta real al backend usando
-    // `filtros.fecha` y `filtros.criterio`, luego despachar `ventasCargadas`.
-  };
+interface FiltrosProps {
+  fecha: string;
+  onFechaChange: (v: string) => void;
+  criterio: CriterioBusqueda;
+  onCriterioChange: (v: CriterioBusqueda) => void;
+}
 
+function Filtros({
+  fecha,
+  onFechaChange,
+  criterio,
+  onCriterioChange,
+}: FiltrosProps) {
   return (
     <div className="hv-filtros">
       <label className="hv-filtro-fecha">
@@ -211,22 +159,20 @@ function Filtros() {
         <input
           type="date"
           className="hv-input"
-          value={filtros.fecha}
-          onChange={(e) => dispatch(filtroFechaCambiado(e.target.value))}
+          value={fecha}
+          onChange={(e) => onFechaChange(e.target.value)}
         />
       </label>
 
       <div className="hv-select-wrapper">
         <select
           className="hv-select"
-          value={filtros.criterio}
+          value={criterio}
           onChange={(e) =>
-            dispatch(
-              filtroCriterioCambiado(e.target.value as CriterioBusqueda)
-            )
+            onCriterioChange(e.target.value as CriterioBusqueda)
           }
         >
-          <option value="fecha_hora">Fecha y Hora</option>
+          <option value="fecha">Fecha</option>
           <option value="cliente">Cliente</option>
           <option value="pelicula">Película</option>
           <option value="estado">Estado</option>
@@ -234,7 +180,7 @@ function Filtros() {
         <ChevronDown size={14} className="hv-select-chevron" />
       </div>
 
-      <button type="button" className="hv-buscar-btn" onClick={handleBuscar}>
+      <button type="button" className="hv-buscar-btn">
         <Search size={15} />
         Buscar
       </button>
@@ -243,35 +189,41 @@ function Filtros() {
 }
 
 // ---------------------------------------------------------------------------
-// Fila de la tabla: resuelve el título de la película desde la slice
-// `peliculas` a partir del `peliculaId` guardado en la venta.
+// Fila de la tabla: resuelve el título de la película con
+// selectPeliculaPorId a partir del peliculaId guardado en la reserva.
 // ---------------------------------------------------------------------------
 
-interface FilaVentaProps {
-  venta: Venta;
-  onVerDetalle: (ventaId: string) => void;
-  onReimprimir: (ventaId: string) => void;
+interface FilaReservaProps {
+  reserva: Reserva;
+  onVerDetalle: (reservaId: string) => void;
+  onReimprimir: (reservaId: string) => void;
 }
 
-function FilaVenta({ venta, onVerDetalle, onReimprimir }: FilaVentaProps) {
-  const pelicula = useAppSelector(selectPeliculaPorId(venta.peliculaId));
+function FilaReserva({
+  reserva,
+  onVerDetalle,
+  onReimprimir,
+}: FilaReservaProps) {
+  const pelicula = useAppSelector(selectPeliculaPorId(reserva.peliculaId));
 
   return (
     <tr>
-      <td className="hv-cell-id">{venta.id}</td>
-      <td className="hv-cell-muted">{venta.fechaHora}</td>
+      <td className="hv-cell-id">{reserva.id.slice(0, 8)}</td>
+      <td className="hv-cell-muted">
+        {reserva.fecha} {reserva.hora}
+      </td>
       <td>
         <span className="hv-cliente-avatar">
           <User size={13} />
         </span>
       </td>
-      <td className="hv-cell-pelicula">{pelicula?.titulo ?? "—"}</td>
-      <td className="hv-cell-muted">{venta.funcion}</td>
-      <td className="hv-cell-muted">{venta.boletos}</td>
-      <td className="hv-cell-monto">{formatMonto(venta.monto)}</td>
+      <td className="hv-cell-pelicula">{pelicula?.nombre ?? "—"}</td>
+      <td className="hv-cell-muted">{reserva.sala}</td>
+      <td className="hv-cell-muted">{reserva.asientos.length}</td>
+      <td className="hv-cell-monto">{formatMonto(reserva.monto)}</td>
       <td>
-        <span className={`hv-badge ${badgeClasePorEstado[venta.estado]}`}>
-          {venta.estado}
+        <span className={`hv-badge ${badgeClasePorEstado[reserva.estado]}`}>
+          {capitalizar(reserva.estado)}
         </span>
       </td>
       <td>
@@ -279,16 +231,16 @@ function FilaVenta({ venta, onVerDetalle, onReimprimir }: FilaVentaProps) {
           <button
             type="button"
             className="hv-accion-btn"
-            onClick={() => onVerDetalle(venta.id)}
-            aria-label={`Ver detalle de venta ${venta.id}`}
+            onClick={() => onVerDetalle(reserva.id)}
+            aria-label={`Ver detalle de reserva ${reserva.id}`}
           >
             <Eye size={14} />
           </button>
           <button
             type="button"
             className="hv-accion-btn"
-            onClick={() => onReimprimir(venta.id)}
-            aria-label={`Reimprimir ticket de venta ${venta.id}`}
+            onClick={() => onReimprimir(reserva.id)}
+            aria-label={`Reimprimir ticket de reserva ${reserva.id}`}
           >
             <Printer size={14} />
           </button>
@@ -299,18 +251,22 @@ function FilaVenta({ venta, onVerDetalle, onReimprimir }: FilaVentaProps) {
 }
 
 // ---------------------------------------------------------------------------
-// Tabla de historial de ventas (lee la lista desde la slice `venta`)
+// Tabla de historial
 // ---------------------------------------------------------------------------
 
-interface TablaVentasProps {
-  onVerDetalle: (ventaId: string) => void;
-  onReimprimir: (ventaId: string) => void;
+interface TablaReservasProps {
+  reservas: Reserva[];
+  totalGlobal: number;
+  onVerDetalle: (reservaId: string) => void;
+  onReimprimir: (reservaId: string) => void;
 }
 
-function TablaVentas({ onVerDetalle, onReimprimir }: TablaVentasProps) {
-  const ventas = useAppSelector(selectVentas);
-  const totalVentas = useAppSelector(selectTotalVentas);
-
+function TablaReservas({
+  reservas,
+  totalGlobal,
+  onVerDetalle,
+  onReimprimir,
+}: TablaReservasProps) {
   const columnas = [
     "ID Venta",
     "Fecha y Hora",
@@ -335,17 +291,17 @@ function TablaVentas({ onVerDetalle, onReimprimir }: TablaVentasProps) {
             </tr>
           </thead>
           <tbody>
-            {ventas.length === 0 ? (
+            {reservas.length === 0 ? (
               <tr>
                 <td className="hv-empty-row" colSpan={columnas.length}>
                   No hay ventas para mostrar.
                 </td>
               </tr>
             ) : (
-              ventas.map((venta) => (
-                <FilaVenta
-                  key={venta.id}
-                  venta={venta}
+              reservas.map((reserva) => (
+                <FilaReserva
+                  key={reserva.id}
+                  reserva={reserva}
                   onVerDetalle={onVerDetalle}
                   onReimprimir={onReimprimir}
                 />
@@ -356,32 +312,28 @@ function TablaVentas({ onVerDetalle, onReimprimir }: TablaVentasProps) {
       </div>
 
       <p className="hv-table-footer">
-        Mostrando {ventas.length} de {totalVentas} ventas
+        Mostrando {reservas.length} de {totalGlobal} ventas
       </p>
     </div>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Modal de detalle (lee la venta seleccionada desde la slice `venta`)
+// Modal de detalle
 // ---------------------------------------------------------------------------
 
-interface DetalleVentaModalProps {
-  onReimprimir: (ventaId: string) => void;
+interface DetalleReservaModalProps {
+  reserva: Reserva;
+  onClose: () => void;
+  onReimprimir: (reservaId: string) => void;
 }
 
-function DetalleVentaModal({ onReimprimir }: DetalleVentaModalProps) {
-  const dispatch = useAppDispatch();
-  const venta = useAppSelector(selectVentaSeleccionada);
-  const pelicula = useAppSelector(
-    selectPeliculaPorId(venta?.peliculaId ?? "")
-  );
-
-  if (!venta) {
-    return null;
-  }
-
-  const cerrar = () => dispatch(seleccionLimpiada());
+function DetalleReservaModal({
+  reserva,
+  onClose,
+  onReimprimir,
+}: DetalleReservaModalProps) {
+  const pelicula = useAppSelector(selectPeliculaPorId(reserva.peliculaId));
 
   return (
     <div
@@ -389,7 +341,7 @@ function DetalleVentaModal({ onReimprimir }: DetalleVentaModalProps) {
       role="dialog"
       aria-modal="true"
       aria-labelledby="hv-detalle-titulo"
-      onClick={cerrar}
+      onClick={onClose}
     >
       <div className="hv-modal" onClick={(e) => e.stopPropagation()}>
         <div className="hv-modal-header">
@@ -399,7 +351,7 @@ function DetalleVentaModal({ onReimprimir }: DetalleVentaModalProps) {
           <button
             type="button"
             className="hv-modal-close"
-            onClick={cerrar}
+            onClick={onClose}
             aria-label="Cerrar"
           >
             <X size={16} />
@@ -411,17 +363,18 @@ function DetalleVentaModal({ onReimprimir }: DetalleVentaModalProps) {
             <User size={20} />
           </span>
           <div className="hv-modal-info">
-            <p className="hv-modal-cliente">{venta.clienteNombre}</p>
-            <p className="hv-modal-muted">{pelicula?.titulo ?? "—"}</p>
+            <p className="hv-modal-cliente">{reserva.clienteNombre}</p>
+            <p className="hv-modal-muted">{pelicula?.nombre ?? "—"}</p>
             <p className="hv-modal-muted">
-              {venta.funcion} · {venta.boletos} boleto(s)
+              {reserva.sala} · {reserva.asientos.length} boleto(s) (
+              {reserva.asientos.join(", ")})
             </p>
-            <p className="hv-modal-muted">{venta.fechaHora}</p>
-            {venta.clienteEmail && (
-              <p className="hv-modal-faint">{venta.clienteEmail}</p>
-            )}
+            <p className="hv-modal-muted">
+              {reserva.fecha} {reserva.hora}
+            </p>
+            <p className="hv-modal-faint">{reserva.clienteEmail}</p>
             <p className="hv-modal-total">
-              Total: {formatMonto(venta.monto)}
+              Total: {formatMonto(reserva.monto)}
             </p>
           </div>
         </div>
@@ -429,7 +382,7 @@ function DetalleVentaModal({ onReimprimir }: DetalleVentaModalProps) {
         <button
           type="button"
           className="hv-modal-reimprimir"
-          onClick={() => onReimprimir(venta.id)}
+          onClick={() => onReimprimir(reserva.id)}
         >
           <Printer size={15} />
           Reimprimir Ticket
@@ -444,27 +397,27 @@ function DetalleVentaModal({ onReimprimir }: DetalleVentaModalProps) {
 // ---------------------------------------------------------------------------
 
 export default function HistorialVentas() {
-  const dispatch = useAppDispatch();
-  const [vistaActiva, setVistaActiva] = React.useState<Vista>("Ventas");
-  const ventaSeleccionadaVenta = useAppSelector(selectVentaSeleccionada);
+  const reservas = useAppSelector(selectReservas);
 
-  // Simula la carga inicial desde el backend. En un proyecto real esto
-  // se reemplaza por thunks (ej. createAsyncThunk) que llaman a la API
-  // y despachan `ventasCargadas` / `peliculasCargadas` con la respuesta.
-  useEffect(() => {
-    dispatch(peliculasCargadas(PELICULAS_EJEMPLO));
-    dispatch(
-      ventasCargadas({ items: VENTAS_EJEMPLO, total: TOTAL_VENTAS_EJEMPLO })
-    );
-  }, [dispatch]);
+  const [vistaActiva, setVistaActiva] = useState<Vista>("Ventas");
+  const [fecha, setFecha] = useState("");
+  const [criterio, setCriterio] = useState<CriterioBusqueda>("fecha");
+  const [reservaSeleccionadaId, setReservaSeleccionadaId] = useState<
+    string | null
+  >(null);
 
-  const handleVerDetalle = (ventaId: string) => {
-    dispatch(ventaSeleccionadaAction(ventaId));
-  };
+  const reservasFiltradas = useMemo(() => {
+    if (!fecha) return reservas;
+    return reservas.filter((r) => r.fecha === fecha);
+  }, [reservas, fecha]);
 
-  const handleReimprimir = (ventaId: string) => {
+  const reservaSeleccionada = reservas.find(
+    (r) => r.id === reservaSeleccionadaId
+  );
+
+  const handleReimprimir = (reservaId: string) => {
     // Punto de integración: llamar al endpoint de reimpresión de ticket.
-    console.log("Reimprimiendo ticket de la venta", ventaId);
+    console.log("Reimprimiendo ticket de la reserva", reservaId);
   };
 
   return (
@@ -472,21 +425,32 @@ export default function HistorialVentas() {
       <div className="hv-container">
         <div className="hv-header-row">
           <h1 className="hv-title">HISTORIAL DE VENTAS</h1>
-          <ResumenCompra />
+          <ResumenCompra reserva={reservaSeleccionada ?? reservas[0]} />
         </div>
 
         <div className="hv-panel">
           <NavBar vistaActiva={vistaActiva} onCambiarVista={setVistaActiva} />
-          <Filtros />
-          <TablaVentas
-            onVerDetalle={handleVerDetalle}
+          <Filtros
+            fecha={fecha}
+            onFechaChange={setFecha}
+            criterio={criterio}
+            onCriterioChange={setCriterio}
+          />
+          <TablaReservas
+            reservas={reservasFiltradas}
+            totalGlobal={reservas.length}
+            onVerDetalle={setReservaSeleccionadaId}
             onReimprimir={handleReimprimir}
           />
         </div>
       </div>
 
-      {ventaSeleccionadaVenta && (
-        <DetalleVentaModal onReimprimir={handleReimprimir} />
+      {reservaSeleccionada && (
+        <DetalleReservaModal
+          reserva={reservaSeleccionada}
+          onClose={() => setReservaSeleccionadaId(null)}
+          onReimprimir={handleReimprimir}
+        />
       )}
     </div>
   );
