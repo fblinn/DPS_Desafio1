@@ -2,6 +2,7 @@ import { createSlice, PayloadAction, createSelector } from "@reduxjs/toolkit";
 import { Sala, SalaFormData } from "@/types/sala";
 import { Funcion, FuncionFormData } from "@/types/funcion";
 import type { RootState } from "../store";
+import { funciones as funcionesEjemplo } from "@/data/funciones";
 
 interface SalasState {
   salas: Sala[];
@@ -15,7 +16,7 @@ const initialState: SalasState = {
     { id: "sala-3", nombre: "Sala 3", capacidad: 60 },
     { id: "sala-4", nombre: "Sala 4", capacidad: 60 },
   ],
-  funciones: [],
+  funciones: funcionesEjemplo,
 };
 
 const salasSlice = createSlice({
