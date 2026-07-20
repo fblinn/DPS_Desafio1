@@ -40,9 +40,16 @@ export default function ModalSeleccionarPelicula({
                 onClick={() => onSeleccionar(pelicula)}
               >
                 <div className="pelicula-card-poster">
-                  {/* TODO: si tu Pelicula tiene campo de imagen (ej. posterUrl),
-                      reemplaza este placeholder por <img src={pelicula.posterUrl} /> */}
-                  🎬
+                  {pelicula.posterImage ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={pelicula.posterImage}
+                      alt={pelicula.nombre}
+                      className="pelicula-card-poster-img"
+                    />
+                  ) : (
+                    "🎬"
+                  )}
                 </div>
                 <span className="pelicula-card-nombre">{pelicula.nombre}</span>
               </button>

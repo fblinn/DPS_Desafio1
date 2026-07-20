@@ -33,14 +33,24 @@ export default function ModalDetallePelicula({
         </div>
 
         <div className="detalle-pelicula-info">
-          <div className="pelicula-card-poster detalle-poster">🎬</div>
+          <div className="pelicula-card-poster detalle-poster">
+            {pelicula.posterImage ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={pelicula.posterImage}
+                alt={pelicula.nombre}
+                className="pelicula-card-poster-img"
+              />
+            ) : (
+              "🎬"
+            )}
+          </div>
           <div>
             <h3 className="detalle-pelicula-nombre">{pelicula.nombre}</h3>
             <p className="detalle-pelicula-meta">
-              {pelicula.genero}
-              {/* TODO: si tu Pelicula tiene "clasificacion" y quieres mostrarla aquí:
-                  {" "}· {pelicula.clasificacion} */}
+              {pelicula.genero} · {pelicula.clasificacion} · {pelicula.duracion} min
             </p>
+            <p className="detalle-pelicula-meta">${pelicula.precio.toFixed(2)} por entrada</p>
           </div>
         </div>
 
