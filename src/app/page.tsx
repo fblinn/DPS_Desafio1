@@ -14,6 +14,7 @@ import ModalDetallePelicula from '@/components/ModalDetallePelicula';
 import { FuncionConSala } from '@/redux/slices/salasSlice';
 import { abrirModal } from '@/redux/slices/asientoSlice';
 import MapaAsientos from '@/components/MapaAsientos';
+import HistorialVentas from '@/components/HistorialVentas';
 
 // Vistas en el nav. "ventas", "inicio" y "configuracion" son
 // placeholders por ahora cada una va llenando la suya.
@@ -93,9 +94,18 @@ export default function Home() {
   };
 
   const handleSeleccionarFuncion = (funcion: FuncionConSala) => {
-    console.log("Función seleccionada:", funcion);
-
-    dispatch(abrirModal());
+    // Antes se descartaba la función elegida (abrirModal() sin payload).
+    // Ahora se le pasa toda la info que MapaAsientos necesita para poder
+    // armar la Reserva completa al confirmar la compra.
+    dispatch(
+      abrirModal({
+        peliculaId: funcion.peliculaId,
+        salaId: funcion.salaId,
+        salaNombre: funcion.salaNombre,
+        fecha: funcion.fecha,
+        hora: funcion.hora,
+      })
+    );
 
     cerrarFlujoVenta();
   };
@@ -166,13 +176,9 @@ export default function Home() {
 
         {/* ---------- Vista: Ventas */}
         {vista === 'ventas' && <Dashboard onNuevaVenta={handleNuevaVenta} />}
-       
-        {/* ---------- Vista: Configuración (placeholder) ---------- */}
-        {vista === 'configuracion' && (
-          <>
-            <h1 className="page-title">Configuración</h1>
-          </>
-        )}
+
+        {/* ---------- Vista: Configuración (aquí vive el historial de ventas) ---------- */}
+        {vista === 'configuracion' && <HistorialVentas />}
       </main>
 
       {modalAbierto && (
@@ -199,8 +205,8 @@ export default function Home() {
         />
       )}
 
-      <MapaAsientos />
+      <MapaAsientos onCompraConfirmada={() => setVista('configuracion')} />
     </div>
-    
+
   );
 }

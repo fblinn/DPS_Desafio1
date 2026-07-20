@@ -17,6 +17,13 @@ export interface EstadoAsientos {
   asientosSeleccionados: string[];
   cliente: Cliente;
   modalAbierto: boolean;
+  // Datos de la función elegida en ModalDetallePelicula, necesarios para
+  // poder armar la Reserva completa cuando se confirma la compra.
+  peliculaId: string | null;
+  salaId: string | null;
+  salaNombre: string | null;
+  fecha: string | null;
+  hora: string | null;
 }
 
 const FILAS = ["A", "B", "C", "D", "E", "F", "G", "H"];
@@ -64,18 +71,41 @@ const estadoInicial: EstadoAsientos = {
     telefono: "",
   },
   modalAbierto: false,
+  peliculaId: null,
+  salaId: null,
+  salaNombre: null,
+  fecha: null,
+  hora: null,
 };
+
+export interface AbrirModalPayload {
+  peliculaId: string;
+  salaId: string;
+  salaNombre: string;
+  fecha: string;
+  hora: string;
+}
 
 const asientoSlice = createSlice({
   name: "asientos",
   initialState: estadoInicial,
   reducers: {
-    abrirModal(state) {
+    abrirModal(state, action: PayloadAction<AbrirModalPayload>) {
       state.modalAbierto = true;
+      state.peliculaId = action.payload.peliculaId;
+      state.salaId = action.payload.salaId;
+      state.salaNombre = action.payload.salaNombre;
+      state.fecha = action.payload.fecha;
+      state.hora = action.payload.hora;
     },
 
     cerrarModal(state) {
       state.modalAbierto = false;
+      state.peliculaId = null;
+      state.salaId = null;
+      state.salaNombre = null;
+      state.fecha = null;
+      state.hora = null;
     },
 
     alternarAsiento(state, action: PayloadAction<string>) {
