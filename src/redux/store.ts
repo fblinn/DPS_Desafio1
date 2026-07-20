@@ -13,7 +13,7 @@ const rootReducer = combineReducers({
   peliculas: peliculasReducer,
   reservas: reservasReducer,
   salas: salasReducer,
-  asientos: asientosReducer,   // <-- Faltaba
+  asientos: asientosReducer,
 });
 
 const persistConfig = {
@@ -21,29 +21,17 @@ const persistConfig = {
   storage,
 };
 
-const persistedReducer = persistReducer(
-  persistConfig,
-  rootReducer
-);
+const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 export const store = configureStore({
   reducer: persistedReducer,
-
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: false,
     }),
 });
 
-export const store = configureStore({
-  reducer: {
-    venta: ventaReducer,
-    peliculas: peliculasReducer,
-  },
-});
-
-export type RootState = ReturnType<typeof store.getState>;
-export type AppDispatch = typeof store.dispatch;
 export const persistor = persistStore(store);
+
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
