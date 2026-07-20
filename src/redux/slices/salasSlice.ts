@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction, createSelector } from "@reduxjs/toolkit";
 import { Sala, SalaFormData } from "@/types/sala";
 import { Funcion, FuncionFormData } from "@/types/funcion";
 import type { RootState } from "../store";
@@ -94,23 +94,30 @@ export interface FuncionConDetalle {
   hora: string;
 }
 
-export const selectFuncionesAIniciar = (state: RootState): FuncionConDetalle[] => {
-  const hoy = new Date().toISOString().split("T")[0];
+export const selectFuncionesAIniciar = createSelector(
+  [
+    (state: RootState) => state.salas.funciones,
+    (state: RootState) => state.peliculas.lista,
+    (state: RootState) => state.salas.salas,
+  ],
+  (funciones, peliculasLista, salas): FuncionConDetalle[] => {
+    const hoy = new Date().toISOString().split("T")[0];
 
-  return state.salas.funciones
-    .filter((f) => f.fecha === hoy)
-    .map((f) => {
-      const pelicula = state.peliculas.lista.find((p) => p.id === f.peliculaId);
-      const sala = state.salas.salas.find((s) => s.id === f.salaId);
-      return {
-        id: f.id,
-        peliculaNombre: pelicula?.nombre ?? "Película desconocida",
-        sala: sala?.nombre ?? "Sala desconocida",
-        hora: f.hora,
-      };
-    })
-    .sort((a, b) => a.hora.localeCompare(b.hora));
-};
+    return funciones
+      .filter((f) => f.fecha === hoy)
+      .map((f) => {
+        const pelicula = peliculasLista.find((p) => p.id === f.peliculaId);
+        const sala = salas.find((s) => s.id === f.salaId);
+        return {
+          id: f.id,
+          peliculaNombre: pelicula?.nombre ?? "Película desconocida",
+          sala: sala?.nombre ?? "Sala desconocida",
+          hora: f.hora,
+        };
+      })
+      .sort((a, b) => a.hora.localeCompare(b.hora));
+  }
+);
 
 // Funciones de una película específica, con el nombre de sala ya resuelto
 // (para la tabla del modal "Detalle Película y Funciones")

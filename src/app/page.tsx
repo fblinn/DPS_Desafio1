@@ -149,26 +149,6 @@ export default function Home() {
               onEliminar={handleEliminar}
               onToggleEstado={(id) => dispatch(cambiarEstadoPelicula(id))}
             />
-
-            {pasoVenta === 'peliculas' && (
-              <ModalSeleccionarPelicula
-                peliculas={peliculas}
-                onSeleccionar={(pelicula) => {
-                  setPeliculaSeleccionada(pelicula);
-                  setPasoVenta('detalle');
-                }}
-                onClose={() => setPasoVenta('cerrado')}
-              />
-            )}
-
-            {pasoVenta === 'detalle' && peliculaSeleccionada && (
-              <ModalDetallePelicula
-                pelicula={peliculaSeleccionada}
-                onSeleccionarFuncion={handleSeleccionarFuncion}
-                onVolver={() => setPasoVenta('peliculas')}
-                onClose={cerrarFlujoVenta}
-              />
-            )}
           </>
         )}
 
@@ -192,6 +172,26 @@ export default function Home() {
 
       {modalAbierto && (
         <FormularioPelicula peliculaEditar={peliculaEditar} onClose={cerrarModal} />
+      )}
+
+      {pasoVenta === 'peliculas' && (
+        <ModalSeleccionarPelicula
+          peliculas={peliculas}
+          onSeleccionar={(pelicula) => {
+            setPeliculaSeleccionada(pelicula);
+            setPasoVenta('detalle');
+          }}
+          onClose={() => setPasoVenta('cerrado')}
+        />
+      )}
+
+      {pasoVenta === 'detalle' && peliculaSeleccionada && (
+        <ModalDetallePelicula
+          pelicula={peliculaSeleccionada}
+          onSeleccionarFuncion={handleSeleccionarFuncion}
+          onVolver={() => setPasoVenta('peliculas')}
+          onClose={cerrarFlujoVenta}
+        />
       )}
     </div>
   );
