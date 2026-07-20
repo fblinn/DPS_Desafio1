@@ -23,6 +23,13 @@ interface ErroresCliente {
   telefono?: string;
 }
 
+// Tipo tickete de compra
+interface CompraConfirmada {
+  asientos: string[];
+  total: number;
+  cliente: { nombre: string; email: string; telefono: string };
+}
+
 export default function MapaAsientos() {
 
   const dispatch = useDispatch();
@@ -40,6 +47,8 @@ export default function MapaAsientos() {
   const total = useSelector(seleccionarTotal);
 
   const [erroresCliente, setErroresCliente] = useState<ErroresCliente>({});
+ // una especie de foto de la compra confirmada
+  const [compraConfirmada, setCompraConfirmada] = useState<CompraConfirmada | null>(null);
 
   if (!modalAbierto) return null;
 
@@ -130,16 +139,19 @@ export default function MapaAsientos() {
       cliente,
     });
  
-    alert(
-      `Compra confirmada: ${asientosSeleccionados.length} asiento(s) por $${total.toFixed(
-        2
-      )}`
-    );
-
-  
+    setCompraConfirmada({
+      asientos: [...asientosSeleccionados],
+      total,
+      cliente: { ...cliente },
+    });
 
     dispatch(limpiarSeleccion());
     setErroresCliente({});
+    //dispatch(cerrarModal()); solo andaba haciendo una prueba y no sirve
+  };
+
+  const cerrarConfirmacion = () => {
+    setCompraConfirmada(null);
     dispatch(cerrarModal());
   };
 
@@ -171,6 +183,7 @@ export default function MapaAsientos() {
   };
 
   return (
+     <>
     <div className="seatmap-overlay">
 
       <div className="seatmap-modal">
@@ -308,14 +321,57 @@ export default function MapaAsientos() {
             >
               Confirmar y pagar
             </button>
-
           </div>
-
         </div>
+      </div>
+    </div>
 
+  {/* Modal de confirmación */}
+  {compraConfirmada && (
+  <div className="modal-overlay" onClick={cerrarConfirmacion}>
+    <div className="modal-card modal-card-small" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-header">
+        <h2 className="modal-title">¡Compra confirmada!</h2>
+        <button className="modal-close" onClick={cerrarConfirmacion} aria-label="Cerrar">
+          ×
+        </button>
       </div>
 
+      <div className="recibo">
+        <div className="recibo-row">
+          <span>Asientos</span>
+          <span>{compraConfirmada.asientos.join(", ")}</span>
+        </div>
+        <div className="recibo-row">
+          <span>Cliente</span>
+          <span>{compraConfirmada.cliente.nombre}</span>
+        </div>
+        <div className="recibo-row">
+          <span>Correo</span>
+          <span>{compraConfirmada.cliente.email}</span>
+        </div>
+        {compraConfirmada.cliente.telefono && (
+          <div className="recibo-row">
+            <span>Teléfono</span>
+            <span>{compraConfirmada.cliente.telefono}</span>
+          </div>
+        )}
+        <hr />
+        <div className="recibo-row recibo-total">
+          <span>Total pagado</span>
+          <span>${compraConfirmada.total.toFixed(2)}</span>
+        </div>
+      </div>
+
+      <div className="form-actions">
+        <button type="button" className="btn-primary" onClick={cerrarConfirmacion}>
+          Aceptar
+        </button>
+      </div>
     </div>
+  </div>
+)}
+</>
   );
 }
 
@@ -331,11 +387,8 @@ function ItemLeyenda({
 
   return (
     <div className="seatmap-legend-item">
-
       <span className={`seatmap-legend-swatch ${className}`} />
-
       <span>{label}</span>
-
     </div>
   );
 }

@@ -1149,6 +1149,7 @@ table.peliculas-table {
   background: var(--red-hover);
 }
 
+<<<<<<< Updated upstream
 /*Estilos para el historial de ventas*/
 .hv-page {
   min-height: 100vh;
@@ -1662,4 +1663,43 @@ table.peliculas-table {
   .hv-nav-links {
     gap: 14px;
   }
+
+/* modal para cuando se compran boletos (asientos) */
+.recibo {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.recibo hr {
+  border: none;
+  border-top: 1px solid var(--border-subtle);
+  margin: 4px 0;
+}
+
+.recibo-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+
+.recibo-row span:first-child {
+  color: var(--text-muted);
+}
+
+.recibo-row span:last-child {
+  color: var(--text-primary);
+  font-weight: 500;
+  text-align: right;
+}
+
+.recibo-total {
+  font-size: 16px;
+}
+
+.recibo-total span:last-child {
+  color: var(--red);
+  font-weight: 700;
 }
