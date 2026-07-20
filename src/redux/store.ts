@@ -1,7 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
-import peliculasReducer from '@/slices/peliculasSlice';
-import reservasReducer from '@/slices/reservasSlice';
-import salasReducer from '@/slices/salasSlice';
+import peliculasReducer from '@/redux/slices/peliculasSlice';
+import reservasReducer from '@/redux/slices/reservasSlice';
+import salasReducer from '@/redux/slices/salasSlice';
 
 // Configuración del store principal de Redux
 export const store = configureStore({
