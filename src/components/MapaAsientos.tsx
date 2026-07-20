@@ -104,7 +104,7 @@ export default function MapaAsientos() {
     if (!cliente.nombre.trim()) {
       errores.nombre = "El nombre es obligatorio.";
     } else if (!REGEX_NOMBRE.test(cliente.nombre)) {
-      errores.nombre = "El nombre solo puede contener letras y espacios.";
+      errores.nombre = "El nombre solo puede contener letras.";
     }
  
     if (!cliente.email.trim()) {
@@ -339,20 +339,20 @@ export default function MapaAsientos() {
 
       <div className="recibo">
         <div className="recibo-row">
-          <span>Asientos</span>
+          <span>Asientos: </span>
           <span>{compraConfirmada.asientos.join(", ")}</span>
         </div>
         <div className="recibo-row">
-          <span>Cliente</span>
+          <span>Cliente: </span>
           <span>{compraConfirmada.cliente.nombre}</span>
         </div>
         <div className="recibo-row">
-          <span>Correo</span>
+          <span>Correo: </span>
           <span>{compraConfirmada.cliente.email}</span>
         </div>
         {compraConfirmada.cliente.telefono && (
           <div className="recibo-row">
-            <span>Teléfono</span>
+            <span>Teléfono: </span>
             <span>{compraConfirmada.cliente.telefono}</span>
           </div>
         )}
