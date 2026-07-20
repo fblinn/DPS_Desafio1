@@ -101,11 +101,11 @@ export default function MapaAsientos() {
     if (!cliente.email.trim()) {
       errores.email = "El correo es obligatorio.";
     } else if (!REGEX_EMAIL.test(cliente.email)) {
-      errores.email = "Ingresa un correo válido (ejemplo: nombre@dominio.com).";
+      errores.email = "Ingresa un correo válido (nombre@gmail.com).";
     }
  
     if (cliente.telefono && !REGEX_TELEFONO.test(cliente.telefono)) {
-      errores.telefono = "El teléfono solo puede contener números y espacios.";
+      errores.telefono = "Ingrese un número de teléfono válido.";
     }
  
     return errores;
