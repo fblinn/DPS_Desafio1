@@ -12,9 +12,8 @@ import Dashboard from '@/components/Dashboard';
 import ModalSeleccionPelicula from '@/components/ModalSeleccionPelicula';
 import ModalDetallePelicula from '@/components/ModalDetallePelicula';
 import { FuncionConSala } from '@/redux/slices/salasSlice';
-import ModalSeleccionarPelicula from '@/components/ModalSeleccionPelicula';
-import { openModal } from '@/redux/slices/asientoSlice';
-import SeatMapModal from '@/components/MapaAsientos';
+import { abrirModal } from '@/redux/slices/asientoSlice';
+import MapaAsientos from '@/components/MapaAsientos';
 
 // Vistas en el nav. "ventas", "inicio" y "configuracion" son
 // placeholders por ahora cada una va llenando la suya.
@@ -94,9 +93,11 @@ export default function Home() {
   };
 
   const handleSeleccionarFuncion = (funcion: FuncionConSala) => {
-    console.log(funcion);
+    console.log("Función seleccionada:", funcion);
 
-    dispatch(openModal());
+    dispatch(abrirModal());
+
+    cerrarFlujoVenta();
   };
 
 
@@ -198,7 +199,7 @@ export default function Home() {
         />
       )}
 
-      {pasoVenta === "detalle" && <SeatMapModal />}
+      <MapaAsientos />
     </div>
     
   );
