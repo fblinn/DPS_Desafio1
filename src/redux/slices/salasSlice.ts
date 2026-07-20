@@ -10,6 +10,7 @@ interface SalasState {
 }
 
 const initialState: SalasState = {
+  //Aqui podes agregar mas salas si queres
   salas: [
     { id: "sala-1", nombre: "Sala 1", capacidad: 80 },
     { id: "sala-2", nombre: "Sala 2", capacidad: 80 },
@@ -78,9 +79,7 @@ export const {
 
 export default salasSlice.reducer;
 
-// ----------------------------------------------------------------
 // Selectores
-// ----------------------------------------------------------------
 
 export const selectSalas = (state: RootState) => state.salas.salas;
 export const selectFunciones = (state: RootState) => state.salas.funciones;
