@@ -1,5 +1,6 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
+import "@/app/globals.css";
 
 import {
   seleccionarEstadoAsientos,
@@ -10,7 +11,7 @@ import {
   limpiarSeleccion,
 } from "@/redux/slices/asientoSlice";
 
-import "@/app/globals.css";
+
 
 export default function MapaAsientos() {
 
@@ -100,7 +101,7 @@ export default function MapaAsientos() {
 
         <div className="seatmap-header">
 
-          <h2>Mapa de asientos</h2>
+          <h2 className="modal-title ">Mapa de asientos</h2>
 
           <button
             className="seatmap-close-btn"
