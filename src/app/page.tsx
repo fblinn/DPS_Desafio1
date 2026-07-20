@@ -12,6 +12,7 @@ import Dashboard from '@/components/Dashboard';
 import ModalSeleccionPelicula from '@/components/ModalSeleccionPelicula';
 import ModalDetallePelicula from '@/components/ModalDetallePelicula';
 import { FuncionConSala } from '@/redux/slices/salasSlice';
+import ModalSeleccionarPelicula from '@/components/ModalSeleccionPelicula';
 
 // Vistas en el nav. "ventas", "inicio" y "configuracion" son
 // placeholders por ahora cada una va llenando la suya.
@@ -150,13 +151,13 @@ export default function Home() {
             />
 
             {pasoVenta === 'peliculas' && (
-              <ModalSeleccionPelicula
+              <ModalSeleccionarPelicula
                 peliculas={peliculas}
                 onSeleccionar={(pelicula) => {
                   setPeliculaSeleccionada(pelicula);
                   setPasoVenta('detalle');
                 }}
-                onClose={cerrarFlujoVenta}
+                onClose={() => setPasoVenta('cerrado')}
               />
             )}
 
@@ -178,7 +179,7 @@ export default function Home() {
           </>
         )}
 
-        {/* ---------- Vista: Ventas = Dashboard (placeholder, aquí te toca el flujo de venta) ---------- */}
+        {/* ---------- Vista: Ventas */}
         {vista === 'ventas' && <Dashboard onNuevaVenta={handleNuevaVenta} />}
        
         {/* ---------- Vista: Configuración (placeholder) ---------- */}
