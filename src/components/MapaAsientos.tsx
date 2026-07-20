@@ -8,7 +8,7 @@ import {
   updateCliente,
   resetSeleccion,
 } from "@/redux/slices/asientoSlice";
-import "./SeatMapModal.css";
+import "@/app/globals.css"; 
 
 export default function SeatMapModal() {
   const dispatch = useDispatch();
