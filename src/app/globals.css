@@ -1149,7 +1149,6 @@ table.peliculas-table {
   background: var(--red-hover);
 }
 
-<<<<<<< Updated upstream
 /*Estilos para el historial de ventas*/
 .hv-page {
   min-height: 100vh;
@@ -1663,6 +1662,7 @@ table.peliculas-table {
   .hv-nav-links {
     gap: 14px;
   }
+}
 
 /* modal para cuando se compran boletos (asientos) */
 .recibo {
