@@ -8,6 +8,7 @@ import Buscador from '@/components/Buscador';
 import Filtros, { FiltrosState, FILTROS_INICIALES, TODOS } from '@/components/Filtros';
 import TablaPeliculas from '@/components/TablaPeliculas';
 import FormularioPelicula from '@/components/FormularioPelicula';
+import Dashboard from '@/components/Dashboard';
 
 // Vistas en el nav. "ventas", "inicio" y "configuracion" son
 // placeholders por ahora cada una va llenando la suya.
@@ -139,11 +140,7 @@ export default function Home() {
         )}
 
         {/* ---------- Vista: Ventas = Dashboard (placeholder, aquí te toca el flujo de venta) ---------- */}
-        {vista === 'ventas' && (
-          <>
-            <h1 className="page-title">Dashboard</h1>
-          </>
-        )}
+        {vista === 'ventas' && <Dashboard />}
        
         {/* ---------- Vista: Configuración (placeholder) ---------- */}
         {vista === 'configuracion' && (

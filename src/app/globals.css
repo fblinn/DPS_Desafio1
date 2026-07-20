@@ -524,3 +524,125 @@ table.peliculas-table {
     min-width: 720px;
   }
 }
+
+/* ---------- Dashboard ---------- */
+
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.dashboard-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dashboard-card-title {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.dashboard-card-value {
+  font-family: var(--font-display);
+  font-size: 32px;
+  letter-spacing: 0.5px;
+  color: var(--text-primary);
+}
+
+.dashboard-card-subtitle {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.dashboard-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-nueva-venta {
+  background: var(--green);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 22px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  transition: opacity 0.2s ease, transform 0.15s ease;
+}
+
+.btn-nueva-venta:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.dashboard-panels {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.dashboard-panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.dashboard-panel-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  letter-spacing: 0.5px;
+  margin: 0 0 16px;
+  color: var(--text-primary);
+}
+
+.dashboard-funciones-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dashboard-funcion-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 10px;
+}
+
+.dashboard-funcion-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.dashboard-funcion-pelicula {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.dashboard-funcion-hora {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.dashboard-sin-datos {
+  color: var(--text-dim);
+  font-size: 14px;
+}
