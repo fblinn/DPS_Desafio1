@@ -1,5 +1,6 @@
-import React from "react";
+
 import { useDispatch, useSelector } from "react-redux";
+import React, { useState } from "react";
 import "@/app/globals.css";
 
 import {
@@ -11,7 +12,16 @@ import {
   limpiarSeleccion,
 } from "@/redux/slices/asientoSlice";
 
+const REGEX_NOMBRE = /^[A-Za-zÀ-ÖØ-öø-ÿñÑ\s]*$/;
+const REGEX_TELEFONO = /^[0-9\s]*$/;
+const REGEX_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+
+interface ErroresCliente {
+  nombre?: string;
+  email?: string;
+  telefono?: string;
+}
 
 export default function MapaAsientos() {
 
@@ -29,6 +39,8 @@ export default function MapaAsientos() {
 
   const total = useSelector(seleccionarTotal);
 
+  const [erroresCliente, setErroresCliente] = useState<ErroresCliente>({});
+
   if (!modalAbierto) return null;
 
   const obtenerClaseAsiento = (id: string): string => {
@@ -39,31 +51,95 @@ export default function MapaAsientos() {
     return `seatmap-seat seatmap-seat--${asientos[id]}`;
   };
 
+  
+  // Nombre: bloquea directamente cualquier caracter que no sea letra o espacio
+  // (el usuario ni siquiera puede escribir un número o símbolo).
+  const handleNombreChange = (valor: string) => {
+    if (REGEX_NOMBRE.test(valor)) {
+      dispatch(actualizarCliente({ nombre: valor }));
+      setErroresCliente((prev) => ({ ...prev, nombre: undefined }));
+    }
+  };
+ 
+  // Teléfono: bloquea directamente cualquier caracter que no sea dígito o espacio.
+  const handleTelefonoChange = (valor: string) => {
+    if (REGEX_TELEFONO.test(valor)) {
+      dispatch(actualizarCliente({ telefono: valor }));
+      setErroresCliente((prev) => ({ ...prev, telefono: undefined }));
+    }
+  };
+ 
+  // Correo: no se puede "bloquear" caracter por caracter porque un email válido
+  // se arma con símbolos (@, .) mientras se escribe. Se valida el formato completo
+  // al salir del campo (blur) y también antes de confirmar la compra.
+  const handleEmailChange = (valor: string) => {
+    dispatch(actualizarCliente({ email: valor }));
+    if (erroresCliente.email) {
+      setErroresCliente((prev) => ({ ...prev, email: undefined }));
+    }
+  };
+ 
+  const validarEmailAlSalir = () => {
+    if (cliente.email && !REGEX_EMAIL.test(cliente.email)) {
+      setErroresCliente((prev) => ({
+        ...prev,
+        email: "Ingresa un correo válido (ejemplo: nombre@dominio.com).",
+      }));
+    }
+  };
+ 
+  // Valida todo el bloque de datos del cliente antes de confirmar la compra
+  const validarCliente = (): ErroresCliente => {
+    const errores: ErroresCliente = {};
+ 
+    if (!cliente.nombre.trim()) {
+      errores.nombre = "El nombre es obligatorio.";
+    } else if (!REGEX_NOMBRE.test(cliente.nombre)) {
+      errores.nombre = "El nombre solo puede contener letras y espacios.";
+    }
+ 
+    if (!cliente.email.trim()) {
+      errores.email = "El correo es obligatorio.";
+    } else if (!REGEX_EMAIL.test(cliente.email)) {
+      errores.email = "Ingresa un correo válido (ejemplo: nombre@dominio.com).";
+    }
+ 
+    if (cliente.telefono && !REGEX_TELEFONO.test(cliente.telefono)) {
+      errores.telefono = "El teléfono solo puede contener números y espacios.";
+    }
+ 
+    return errores;
+  };
+ 
   const confirmarCompra = () => {
-
     if (asientosSeleccionados.length === 0) {
       alert("Selecciona al menos un asiento.");
       return;
     }
-
-    if (!cliente.nombre || !cliente.email) {
-      alert("Completa el nombre y el correo.");
+ 
+    const erroresValidacion = validarCliente();
+    setErroresCliente(erroresValidacion);
+ 
+    if (Object.keys(erroresValidacion).length > 0) {
       return;
     }
-
+ 
     console.log({
       asientos: asientosSeleccionados,
       total,
       cliente,
     });
-
+ 
     alert(
       `Compra confirmada: ${asientosSeleccionados.length} asiento(s) por $${total.toFixed(
         2
       )}`
     );
 
+  
+
     dispatch(limpiarSeleccion());
+    setErroresCliente({});
     dispatch(cerrarModal());
   };
 
@@ -201,38 +277,30 @@ export default function MapaAsientos() {
             <input
               placeholder="Nombre"
               value={cliente.nombre}
-              onChange={(e) =>
-                dispatch(
-                  actualizarCliente({
-                    nombre: e.target.value,
-                  })
-                )
-              }
+              onChange={(e) => handleNombreChange(e.target.value)}
             />
-
+            {erroresCliente.nombre && (
+              <span className="field-error">{erroresCliente.nombre}</span>
+            )}
+ 
             <input
               placeholder="Correo"
               value={cliente.email}
-              onChange={(e) =>
-                dispatch(
-                  actualizarCliente({
-                    email: e.target.value,
-                  })
-                )
-              }
+              onChange={(e) => handleEmailChange(e.target.value)}
+              onBlur={validarEmailAlSalir}
             />
-
+            {erroresCliente.email && (
+              <span className="field-error">{erroresCliente.email}</span>
+            )}
+ 
             <input
               placeholder="Teléfono"
               value={cliente.telefono}
-              onChange={(e) =>
-                dispatch(
-                  actualizarCliente({
-                    telefono: e.target.value,
-                  })
-                )
-              }
+              onChange={(e) => handleTelefonoChange(e.target.value)}
             />
+            {erroresCliente.telefono && (
+              <span className="field-error">{erroresCliente.telefono}</span>
+            )}
 
             <button
               className="seatmap-confirm-btn"
