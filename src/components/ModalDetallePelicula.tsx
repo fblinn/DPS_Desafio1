@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { useSelector } from "react-redux";
 import { Pelicula } from "@/types/pelicula";
 import { selectFuncionesPorPelicula, FuncionConSala } from "@/redux/slices/salasSlice";
+import FormularioFuncion from "./FomularioFuncion";
 
 interface ModalDetallePeliculaProps {
   pelicula: Pelicula;
@@ -18,6 +20,7 @@ export default function ModalDetallePelicula({
   onClose,
 }: ModalDetallePeliculaProps) {
   const funciones = useSelector(selectFuncionesPorPelicula(pelicula.id));
+  const [mostrarFormularioFuncion, setMostrarFormularioFuncion] = useState(false);
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -54,7 +57,16 @@ export default function ModalDetallePelicula({
           </div>
         </div>
 
-        <h4 className="detalle-funciones-titulo">Funciones</h4>
+        <div className="detalle-funciones-header">
+          <h4 className="detalle-funciones-titulo">Funciones</h4>
+          <button
+            type="button"
+            className="btn-secondary btn-agregar-funcion"
+            onClick={() => setMostrarFormularioFuncion(true)}
+          >
+            + Agregar función
+          </button>
+        </div>
 
         {funciones.length === 0 ? (
           <p className="dashboard-sin-datos">
@@ -100,6 +112,13 @@ export default function ModalDetallePelicula({
           </button>
         </div>
       </div>
+
+      {mostrarFormularioFuncion && (
+        <FormularioFuncion
+          peliculaId={pelicula.id}
+          onClose={() => setMostrarFormularioFuncion(false)}
+        />
+      )}
     </div>
   );
 }

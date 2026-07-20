@@ -9,7 +9,12 @@ interface SalasState {
 }
 
 const initialState: SalasState = {
-  salas: [],
+  salas: [
+    { id: "sala-1", nombre: "Sala 1", capacidad: 80 },
+    { id: "sala-2", nombre: "Sala 2", capacidad: 80 },
+    { id: "sala-3", nombre: "Sala 3", capacidad: 60 },
+    { id: "sala-4", nombre: "Sala 4", capacidad: 60 },
+  ],
   funciones: [],
 };
 
