@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Sala, SalaFormData, Funcion, FuncionFormData } from "./sala.types"; // TODO: ajusta la ruta real
+import { Sala, SalaFormData, Funcion, FuncionFormData } from "@/types/sala"; // TODO: ajusta la ruta real
 import type { RootState } from "../store"; // TODO: ajusta la ruta si tu store no está en src/redux/store.ts
 
 interface SalasState {
