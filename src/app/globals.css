@@ -581,18 +581,6 @@ table.peliculas-table {
   justify-content: flex-end;
 }
 
-.btn-nueva-venta {
-  background: var(--green);
-  color: #fff;
-  border: none;
-  border-radius: 999px;
-  padding: 10px 22px;
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.3px;
-  transition: opacity 0.2s ease, transform 0.15s ease;
-}
-
 .btn-nueva-venta:hover {
   opacity: 0.9;
   transform: translateY(-1px);
@@ -657,7 +645,7 @@ table.peliculas-table {
   font-size: 14px;
 }
 
-/* ---------- Modales de Venta: Seleccionar PelÃ­cula ---------- */
+/* ---------- Modales de Venta: Seleccionar Peli­cula ---------- */
 
 .modal-card-ancho {
   max-width: 720px;
@@ -707,7 +695,7 @@ table.peliculas-table {
   text-align: center;
 }
 
-/* ---------- Modales de Venta: Seleccionar PelÃ­cula ---------- */
+/* ---------- Modales de Venta: Seleccionar Peli­cula ---------- */
 
 .modal-card-ancho {
   max-width: 720px;
@@ -803,7 +791,7 @@ table.peliculas-table {
   padding: 6px 14px;
   font-size: 12px;
 }
-/* ---------- Modales de Venta: Seleccionar PelÃ­cula ---------- */
+/* ---------- Modales de Venta: Seleccionar Peli­cula ---------- */
 
 .modal-card-ancho {
   max-width: 720px;
@@ -931,9 +919,11 @@ table.peliculas-table {
 .seatmap-modal {
   width: 100%;
   max-width: 900px;
-  background: #fff;
+  background: var(--bg-panel);
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
   border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 30px rgba(0,0,0,.6);
   overflow: hidden;
   max-height: 90vh;
   display: flex;
@@ -944,29 +934,23 @@ table.peliculas-table {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--border-subtle);
   padding: 16px 24px;
 }
 
 .seatmap-header h2 {
   margin: 0;
-  font-size: 20px;
-  font-weight: 700;
+  color: var(--text-primary);
 }
 
 .seatmap-close-btn {
-  border: none;
   background: transparent;
-  font-size: 18px;
-  color: #6b7280;
-  cursor: pointer;
-  border-radius: 999px;
-  width: 32px;
-  height: 32px;
+  color: var(--text-muted);
+  border: none;
 }
 
 .seatmap-close-btn:hover {
-  background: #f3f4f6;
+  color: white;
 }
 
 .seatmap-body {
@@ -988,20 +972,13 @@ table.peliculas-table {
 }
 
 .seatmap-screen {
-  background: #f3f4f6;
-  border-radius: 4px;
-  padding: 8px;
-  text-align: center;
-  font-size: 12px;
-  letter-spacing: 2px;
-  color: #9ca3af;
-  margin-bottom: 24px;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
 }
 
 .seatmap-sala {
-  text-align: center;
-  font-weight: 600;
-  margin-bottom: 16px;
+  color: var(--text-primary);
 }
 
 .seatmap-row {
@@ -1013,9 +990,7 @@ table.peliculas-table {
 }
 
 .seatmap-row-label {
-  width: 16px;
-  font-size: 11px;
-  color: #9ca3af;
+  color: var(--text-muted);
 }
 
 .seatmap-seat-group {
@@ -1060,10 +1035,6 @@ table.peliculas-table {
   border-color: #fca5a5;
 }
 
-.seatmap-seat--preferencial {
-  background: #0f172a;
-  border-color: #0f172a;
-}
 
 /* Leyenda */
 .seatmap-legend {
@@ -1096,8 +1067,9 @@ table.peliculas-table {
 .seatmap-sidebar {
   width: 320px;
   flex-shrink: 0;
-  border-left: 1px solid #e5e7eb;
+  border-left: 1px solid var(--border-subtle);
   padding: 24px;
+  background: var(--bg-elevated);
 }
 
 @media (max-width: 768px) {
@@ -1122,19 +1094,17 @@ table.peliculas-table {
 }
 
 .seatmap-summary-label {
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .seatmap-summary-value {
-  font-weight: 600;
+  color: var(--text-primary);
 }
 
 .seatmap-divider {
   border: none;
-  border-top: 1px solid #e5e7eb;
-  margin: 16px 0;
+  border-top: 1px solid var(--border-subtle);
 }
-
 .seatmap-sidebar h4 {
   margin: 0 0 12px;
   font-size: 15px;
@@ -1146,25 +1116,21 @@ table.peliculas-table {
 }
 
 .seatmap-field label {
-  display: block;
-  font-size: 12px;
-  color: #6b7280;
-  margin-bottom: 4px;
+  color: var(--text-muted);
 }
 
 .seatmap-field input {
   width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #d1d5db;
+  background: var(--bg-panel);
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
   border-radius: 8px;
-  font-size: 14px;
-  box-sizing: border-box;
+  padding: 10px 12px;
 }
 
 .seatmap-field input:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  border-color: var(--red);
 }
 
 .seatmap-confirm-btn {
@@ -1172,14 +1138,12 @@ table.peliculas-table {
   margin-top: 20px;
   padding: 12px;
   border: none;
-  border-radius: 999px;
-  background: #2563eb;
-  color: #fff;
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
+  border-radius: 6px;
+  background: var(--red);
+  color: white;
+  font-weight: 700;
 }
 
 .seatmap-confirm-btn:hover {
-  background: #1d4ed8;
+  background: var(--red-hover);
 }

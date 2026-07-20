@@ -101,7 +101,7 @@ export default function MapaAsientos() {
 
         <div className="seatmap-header">
 
-          <h2 className="modal-title ">Mapa de asientos</h2>
+          <h2>Mapa de asientos</h2>
 
           <button
             className="seatmap-close-btn"
