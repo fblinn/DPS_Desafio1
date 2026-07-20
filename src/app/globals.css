@@ -905,3 +905,271 @@ table.peliculas-table {
   padding: 6px 14px;
   font-size: 12px;
 }
+
+/* ---------- Modal: Seleccionar de asiento ---------- */
+.seatmap-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 50;
+}
+
+.seatmap-modal {
+  width: 100%;
+  max-width: 900px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.seatmap-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 16px 24px;
+}
+
+.seatmap-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.seatmap-close-btn {
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  color: #6b7280;
+  cursor: pointer;
+  border-radius: 999px;
+  width: 32px;
+  height: 32px;
+}
+
+.seatmap-close-btn:hover {
+  background: #f3f4f6;
+}
+
+.seatmap-body {
+  display: flex;
+  flex-direction: row;
+  overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+  .seatmap-body {
+    flex-direction: column;
+  }
+}
+
+/* Panel del mapa */
+.seatmap-map {
+  flex: 1;
+  padding: 24px;
+}
+
+.seatmap-screen {
+  background: #f3f4f6;
+  border-radius: 4px;
+  padding: 8px;
+  text-align: center;
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: #9ca3af;
+  margin-bottom: 24px;
+}
+
+.seatmap-sala {
+  text-align: center;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.seatmap-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.seatmap-row-label {
+  width: 16px;
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.seatmap-seat-group {
+  display: flex;
+  gap: 4px;
+}
+
+.seatmap-aisle {
+  width: 24px;
+}
+
+.seatmap-seat {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid;
+  cursor: pointer;
+  padding: 0;
+}
+
+.seatmap-seat:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.seatmap-seat--disponible {
+  background: #d1fae5;
+  border-color: #34d399;
+}
+
+.seatmap-seat--disponible:hover:not(:disabled) {
+  background: #a7f3d0;
+}
+
+.seatmap-seat--seleccionado {
+  background: #bfdbfe;
+  border-color: #3b82f6;
+}
+
+.seatmap-seat--ocupado {
+  background: #fee2e2;
+  border-color: #fca5a5;
+}
+
+.seatmap-seat--preferencial {
+  background: #0f172a;
+  border-color: #0f172a;
+}
+
+/* Leyenda */
+.seatmap-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 24px;
+  font-size: 12px;
+}
+
+.seatmap-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.seatmap-legend-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  border: 1px solid;
+}
+
+.seatmap-legend-color {
+  color: #4b5563;
+}
+
+/* Panel lateral */
+.seatmap-sidebar {
+  width: 320px;
+  flex-shrink: 0;
+  border-left: 1px solid #e5e7eb;
+  padding: 24px;
+}
+
+@media (max-width: 768px) {
+  .seatmap-sidebar {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid #e5e7eb;
+  }
+}
+
+.seatmap-sidebar h3 {
+  margin: 0 0 16px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.seatmap-summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.seatmap-summary-label {
+  color: #6b7280;
+}
+
+.seatmap-summary-value {
+  font-weight: 600;
+}
+
+.seatmap-divider {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 16px 0;
+}
+
+.seatmap-sidebar h4 {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.seatmap-field {
+  margin-bottom: 12px;
+}
+
+.seatmap-field label {
+  display: block;
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.seatmap-field input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.seatmap-field input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.seatmap-confirm-btn {
+  width: 100%;
+  margin-top: 20px;
+  padding: 12px;
+  border: none;
+  border-radius: 999px;
+  background: #2563eb;
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.seatmap-confirm-btn:hover {
+  background: #1d4ed8;
+}
