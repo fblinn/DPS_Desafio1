@@ -502,6 +502,16 @@ table.peliculas-table {
   margin-top: 22px;
 }
 
+.form-alert {
+  background: rgba(229, 9, 20, 0.1);
+  border: 1px solid rgba(229, 9, 20, 0.4);
+  color: #ff6b6b;
+  font-size: 13px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+
 
 
 @media (max-width: 640px) {

@@ -45,6 +45,7 @@ function estadoInicial(pelicula: Pelicula | null): FormState {
       posterImage: '',
     };
   }
+
   // Si existe una peli, carga datos para editar
   return {
     codigo: pelicula.codigo,
@@ -71,7 +72,7 @@ export default function FormularioPelicula({
   const [tocado, setTocado] = useState<Tocado>({});
   const [intentoEnviar, setIntentoEnviar] = useState(false);
 
-  // Valida un solo campo y devuelve su mensaje de error (o undefined si está bien)
+  // Valida un solo campo y devuelve su mensaje de error
   const validarCampo = (campo: CampoTexto, valores: FormState): string | undefined => {
     switch (campo) {
       case 'nombre':
