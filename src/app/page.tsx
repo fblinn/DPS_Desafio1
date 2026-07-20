@@ -9,6 +9,9 @@ import Filtros, { FiltrosState, FILTROS_INICIALES, TODOS } from '@/components/Fi
 import TablaPeliculas from '@/components/TablaPeliculas';
 import FormularioPelicula from '@/components/FormularioPelicula';
 import Dashboard from '@/components/Dashboard';
+import ModalSeleccionPelicula from '@/components/ModalSeleccionPelicula';
+import ModalDetallePelicula from '@/components/ModalDetallePelicula';
+import { FuncionConSala } from '@/redux/slices/salasSlice';
 
 // Vistas en el nav. "ventas", "inicio" y "configuracion" son
 // placeholders por ahora cada una va llenando la suya.
@@ -24,6 +27,8 @@ export default function Home() {
   const [filtros, setFiltros] = useState<FiltrosState>(FILTROS_INICIALES);
   const [modalAbierto, setModalAbierto] = useState(false);
   const [peliculaEditar, setPeliculaEditar] = useState<Pelicula | null>(null);
+  const [pasoVenta, setPasoVenta] = useState<'cerrado' | 'peliculas' | 'detalle'>('cerrado');
+  const [peliculaSeleccionada, setPeliculaSeleccionada] = useState<Pelicula | null>(null);
 
   // Filtra las películas según la búsqueda y los filtros
   const peliculasFiltradas = useMemo(() => {
@@ -74,6 +79,19 @@ export default function Home() {
     if (confirm('¿Eliminar esta película?')) {
       dispatch(eliminarPelicula(id));
     }
+  };
+
+  //Funciones para el flujo de venta
+  const handleNuevaVenta = () => {
+    setPasoVenta('peliculas');
+  };
+  const cerrarFlujoVenta = () => {
+    setPasoVenta('cerrado');
+    setPeliculaSeleccionada(null);
+  };
+
+  const handleSeleccionarFuncion = (funcion: FuncionConSala) => {
+    console.log("TODO: siguiente paso -> mapa de asientos", funcion);
   };
 
   return (
@@ -129,6 +147,26 @@ export default function Home() {
               onEliminar={handleEliminar}
               onToggleEstado={(id) => dispatch(cambiarEstadoPelicula(id))}
             />
+
+            {pasoVenta === 'peliculas' && (
+              <ModalSeleccionPelicula
+                peliculas={peliculas}
+                onSeleccionar={(pelicula) => {
+                  setPeliculaSeleccionada(pelicula);
+                  setPasoVenta('detalle');
+                }}
+                onClose={cerrarFlujoVenta}
+              />
+            )}
+
+            {pasoVenta === 'detalle' && peliculaSeleccionada && (
+              <ModalDetallePelicula
+                pelicula={peliculaSeleccionada}
+                onSeleccionarFuncion={handleSeleccionarFuncion}
+                onVolver={() => setPasoVenta('peliculas')}
+                onClose={cerrarFlujoVenta}
+              />
+            )}
           </>
         )}
 

@@ -646,3 +646,93 @@ table.peliculas-table {
   color: var(--text-dim);
   font-size: 14px;
 }
+
+/* ---------- Modales de Venta: Seleccionar PelÃ­cula ---------- */
+
+.modal-card-ancho {
+  max-width: 720px;
+}
+
+.peliculas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 16px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.pelicula-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+  color: var(--text-primary);
+}
+
+.pelicula-card:hover {
+  border-color: var(--red);
+  transform: translateY(-2px);
+}
+
+.pelicula-card-poster {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  border-radius: 6px;
+  background: var(--bg-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+}
+
+.pelicula-card-nombre {
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* ---------- Modal: Detalle PelÃ­cula y Funciones ---------- */
+
+.detalle-pelicula-info {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.detalle-poster {
+  width: 80px;
+  flex-shrink: 0;
+}
+
+.detalle-pelicula-nombre {
+  font-family: var(--font-display);
+  font-size: 22px;
+  letter-spacing: 0.5px;
+  margin: 0 0 4px;
+}
+
+.detalle-pelicula-meta {
+  color: var(--text-muted);
+  font-size: 13px;
+  margin: 0;
+}
+
+.detalle-funciones-titulo {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-dim);
+  margin: 0 0 12px;
+}
+
+.btn-seleccionar-funcion {
+  padding: 6px 14px;
+  font-size: 12px;
+}

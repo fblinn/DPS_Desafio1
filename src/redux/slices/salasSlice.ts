@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Sala, SalaFormData, Funcion, FuncionFormData } from "@/types/sala"; // TODO: ajusta la ruta real
-import type { RootState } from "../store"; // TODO: ajusta la ruta si tu store no está en src/redux/store.ts
+import { Sala, SalaFormData } from "@/types/sala";
+import { Funcion, FuncionFormData } from "@/types/funcion";
+import type { RootState } from "../store";
 
 interface SalasState {
   salas: Sala[];
@@ -73,13 +74,11 @@ export default salasSlice.reducer;
 
 // ----------------------------------------------------------------
 // Selectores
-// NOTA: asumo "fecha" como string "YYYY-MM-DD", igual que en reservasSlice.
 // ----------------------------------------------------------------
 
 export const selectSalas = (state: RootState) => state.salas.salas;
 export const selectFunciones = (state: RootState) => state.salas.funciones;
 
-// Funciones disponibles hoy (para la tarjeta "Funciones Disponibles")
 export const selectFuncionesHoy = (state: RootState) => {
   const hoy = new Date().toISOString().split("T")[0];
   return state.salas.funciones.filter((f) => f.fecha === hoy);
@@ -88,8 +87,6 @@ export const selectFuncionesHoy = (state: RootState) => {
 export const selectTotalFuncionesDisponibles = (state: RootState) =>
   selectFuncionesHoy(state).length;
 
-// Funciones a iniciar: las de hoy, ordenadas por hora, ya combinadas con
-// el nombre de la película y el nombre de la sala (para pintar directo en la UI)
 export interface FuncionConDetalle {
   id: string;
   peliculaNombre: string;
@@ -112,8 +109,22 @@ export const selectFuncionesAIniciar = (state: RootState): FuncionConDetalle[] =
         hora: f.hora,
       };
     })
-    // TODO: si quieres ordenarlas cronológicamente de verdad, "hora" como
-    // string "3:00 pm" no ordena bien alfabéticamente. Considera guardar
-    // la hora en formato 24h (ej. "15:00") para poder hacer sort() correcto.
     .sort((a, b) => a.hora.localeCompare(b.hora));
 };
+
+// Funciones de una película específica, con el nombre de sala ya resuelto
+// (para la tabla del modal "Detalle Película y Funciones")
+export interface FuncionConSala extends Funcion {
+  salaNombre: string;
+}
+
+export const selectFuncionesPorPelicula =
+  (peliculaId: string) =>
+  (state: RootState): FuncionConSala[] => {
+    return state.salas.funciones
+      .filter((f) => f.peliculaId === peliculaId)
+      .map((f) => {
+        const sala = state.salas.salas.find((s) => s.id === f.salaId);
+        return { ...f, salaNombre: sala?.nombre ?? "Sala desconocida" };
+      });
+  };

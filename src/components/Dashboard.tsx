@@ -63,7 +63,7 @@ export default function Dashboard() {
 
       {/* Botón nueva venta */}
       <div className="dashboard-actions">
-        <button onClick={handleNuevaVenta} className="btn-nueva-venta">
+        <button onClick={handleNuevaVenta} className="btn-primary">
           + NUEVA VENTA
         </button>
       </div>

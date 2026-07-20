@@ -1,7 +1,7 @@
 // Sala: solo el espacio físico
 export interface Sala {
   id: string;
-  nombre: string; // ej. "Sala 1"
+  nombre: string; 
   capacidad: number;
 }
 
