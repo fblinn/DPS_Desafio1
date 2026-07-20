@@ -975,6 +975,7 @@ table.peliculas-table {
   background: var(--bg-elevated);
   color: var(--text-muted);
   border: 1px solid var(--border-subtle);
+  text-align: center;
 }
 
 .seatmap-sala {
