@@ -2,10 +2,6 @@
 
 import React, { useMemo, useState } from "react";
 import {
-  Home,
-  Film,
-  Ticket,
-  Settings,
   Search,
   Calendar,
   ChevronDown,
@@ -35,100 +31,7 @@ const badgeClasePorEstado: Record<EstadoReserva, string> = {
   cancelada: "hv-badge-cancelada",
 };
 
-// ---------------------------------------------------------------------------
-// Resumen de compra (última reserva o la seleccionada en la tabla)
-// ---------------------------------------------------------------------------
 
-interface ResumenCompraProps {
-  reserva: Reserva | undefined;
-}
-
-function ResumenCompra({ reserva }: ResumenCompraProps) {
-  if (!reserva) {
-    return null;
-  }
-
-  return (
-    <aside className="hv-resumen">
-      <h2 className="hv-resumen-title">Resumen de Compra</h2>
-      <dl className="hv-resumen-list">
-        <div className="hv-resumen-item">
-          <dt className="hv-resumen-label">Nombre</dt>
-          <dd className="hv-resumen-value">{reserva.clienteNombre}</dd>
-        </div>
-        <div className="hv-resumen-item">
-          <dt className="hv-resumen-label">Email/Tel</dt>
-          <dd className="hv-resumen-value">
-            {reserva.clienteTelefono || reserva.clienteEmail}
-          </dd>
-        </div>
-        <div className="hv-resumen-item">
-          <dt className="hv-resumen-label">
-            Boletos ({reserva.asientos.length})
-          </dt>
-          <dd className="hv-resumen-value">
-            {reserva.asientos.join(", ")}
-          </dd>
-        </div>
-      </dl>
-      <div className="hv-resumen-total">
-        <span className="hv-resumen-total-label">Total a Pagar</span>
-        <span className="hv-resumen-total-value">
-          {formatMonto(reserva.monto)}
-        </span>
-      </div>
-    </aside>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Barra de navegación
-// ---------------------------------------------------------------------------
-
-type Vista = "Inicio" | "Películas" | "Ventas" | "Configuración";
-
-interface NavBarProps {
-  vistaActiva: Vista;
-  onCambiarVista: (v: Vista) => void;
-}
-
-function NavBar({ vistaActiva, onCambiarVista }: NavBarProps) {
-  const items: { label: Vista; icon: React.ElementType }[] = [
-    { label: "Inicio", icon: Home },
-    { label: "Películas", icon: Film },
-    { label: "Ventas", icon: Ticket },
-    { label: "Configuración", icon: Settings },
-  ];
-
-  return (
-    <div className="hv-navbar">
-      <div className="hv-navbar-left">
-        <button type="button" className="hv-icon-btn" aria-label="Menú">
-          <Home size={16} />
-        </button>
-        <nav className="hv-nav-links">
-          {items.map(({ label, icon: Icon }) => {
-            const activo = label === vistaActiva;
-            return (
-              <button
-                key={label}
-                type="button"
-                onClick={() => onCambiarVista(label)}
-                className={`hv-nav-link${activo ? " is-active" : ""}`}
-              >
-                <Icon size={15} />
-                {label}
-              </button>
-            );
-          })}
-        </nav>
-      </div>
-      <button type="button" className="hv-avatar-btn" aria-label="Perfil">
-        <User size={16} />
-      </button>
-    </div>
-  );
-}
 
 // ---------------------------------------------------------------------------
 // Filtros — estado local: tu reservasSlice no guarda filtros, así que no
@@ -399,7 +302,6 @@ function DetalleReservaModal({
 export default function HistorialVentas() {
   const reservas = useAppSelector(selectReservas);
 
-  const [vistaActiva, setVistaActiva] = useState<Vista>("Ventas");
   const [fecha, setFecha] = useState("");
   const [criterio, setCriterio] = useState<CriterioBusqueda>("fecha");
   const [reservaSeleccionadaId, setReservaSeleccionadaId] = useState<
@@ -425,11 +327,11 @@ export default function HistorialVentas() {
       <div className="hv-container">
         <div className="hv-header-row">
           <h1 className="hv-title">HISTORIAL DE VENTAS</h1>
-          <ResumenCompra reserva={reservaSeleccionada ?? reservas[0]} />
+          
         </div>
 
         <div className="hv-panel">
-          <NavBar vistaActiva={vistaActiva} onCambiarVista={setVistaActiva} />
+         
           <Filtros
             fecha={fecha}
             onFechaChange={setFecha}
