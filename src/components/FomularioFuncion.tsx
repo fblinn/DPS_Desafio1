@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { selectSalas, agregarFuncion } from "@/redux/slices/salasSlice";
+//import { selectSalas, agregarFuncion } from "@/redux/slices/salasSlice";
+import { selectSalas, agregarFuncion, selectHorarioOcupadoEnSala } from "@/redux/slices/salasSlice";
 import { FormatoFuncion, IdiomaFuncion } from "@/types/funcion";
 
 interface FormularioFuncionProps {
@@ -25,6 +26,8 @@ export default function FormularioFuncion({
   const [formato, setFormato] = useState<FormatoFuncion>("2D");
   const [idioma, setIdioma] = useState<IdiomaFuncion>("Sub");
   const [error, setError] = useState("");
+
+  const horarioOcupado = useSelector(selectHorarioOcupadoEnSala(salaId, fecha, hora));
 
   // Fecha de hoy para comparar  evitar que el usuario pueda elegir
   // un dia pasado 
@@ -55,6 +58,12 @@ export default function FormularioFuncion({
         setError("No puedes registrar una función a una hora que ya pasó.");
         return;
       }
+    }
+
+    // No permitir horario repetido en la misma sala
+    if (horarioOcupado) {
+      setError("Ya existe una función registrada en esa sala, fecha y hora.");
+      return;
     }
     
     setError("");

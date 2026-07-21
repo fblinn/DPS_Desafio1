@@ -140,3 +140,17 @@ export const selectFuncionesPorPelicula =
         return { ...f, salaNombre: sala?.nombre ?? "Sala desconocida" };
       });
   };
+
+  // Revisa si ya existe una función registrada en la misma sala, fecha y hora.
+// "funcionIdExcluir" se usa al editar, para no chocar contra la propia función.
+export const selectHorarioOcupadoEnSala =
+  (salaId: string, fecha: string, hora: string, funcionIdExcluir?: string) =>
+  (state: RootState): boolean => {
+    return state.salas.funciones.some(
+      (f) =>
+        f.salaId === salaId &&
+        f.fecha === fecha &&
+        f.hora === hora &&
+        f.id !== funcionIdExcluir
+    );
+  };
