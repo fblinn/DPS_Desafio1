@@ -29,7 +29,7 @@ export interface EstadoAsientos {
 const FILAS = ["A", "B", "C", "D", "E", "F", "G", "H"];
 const ASIENTOS_IZQUIERDA = 5;
 const ASIENTOS_DERECHA = 5;
-const PRECIO_POR_ASIENTO = 10;
+const PRECIO_POR_ASIENTO = 5;
 
 const ASIENTOS_OCUPADOS = new Set([
   "B-2",
@@ -41,17 +41,17 @@ const ASIENTOS_OCUPADOS = new Set([
   "F-8",
 ]);
 
-function construirAsientos(): Record<string, EstadoAsiento> {
+export function construirAsientos(
+  ocupadosExtra: string[] = []
+): Record<string, EstadoAsiento> {
   const asientos: Record<string, EstadoAsiento> = {};
   const total = ASIENTOS_IZQUIERDA + ASIENTOS_DERECHA;
+  const setOcupados = new Set([...ASIENTOS_OCUPADOS, ...ocupadosExtra]);
 
   FILAS.forEach((fila) => {
     for (let i = 1; i <= total; i++) {
       const id = `${fila}-${i}`;
-
-      asientos[id] = ASIENTOS_OCUPADOS.has(id)
-        ? "ocupado"
-        : "disponible";
+      asientos[id] = setOcupados.has(id) ? "ocupado" : "disponible";
     }
   });
 
@@ -144,6 +144,14 @@ const asientoSlice = createSlice({
     ) {
       state.asientos = action.payload;
     },
+
+    marcarAsientosOcupados(state, action: PayloadAction<string[]>) {
+      action.payload.forEach((id) => {
+        state.asientos[id] = "ocupado";
+      });
+      state.asientosSeleccionados = [];
+      state.cliente = { nombre: "", email: "", telefono: "" };
+    },
   },
 });
 
@@ -154,6 +162,7 @@ export const {
   actualizarCliente,
   limpiarSeleccion,
   establecerAsientos,
+  marcarAsientosOcupados,
 } = asientoSlice.actions;
 
 // Selectores

@@ -11,6 +11,7 @@ import {
   limpiarSeleccion,
 } from "@/redux/slices/asientoSlice";
 import { agregarReserva } from "@/redux/slices/reservasSlice";
+import { confirmarCompra as confirmarCompraLocalStorage } from "@/redux/slices/asientoThunks";
 
 const REGEX_NOMBRE = /^[A-Za-zÀ-ÖØ-öø-ÿñÑ\s]*$/;
 const REGEX_TELEFONO = /^[0-9\s]*$/;
