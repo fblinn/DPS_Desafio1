@@ -123,8 +123,14 @@ export default function MapaAsientos({ onCompraConfirmada }: MapaAsientosProps) 
       errores.email = "Ingresa un correo válido (nombre@gmail.com).";
     }
  
+    //if (cliente.telefono && !REGEX_TELEFONO.test(cliente.telefono)) {
+      //errores.telefono = "Ingrese un número de teléfono válido.";
+    //}
+
     if (cliente.telefono && !REGEX_TELEFONO.test(cliente.telefono)) {
       errores.telefono = "Ingrese un número de teléfono válido.";
+    } else if (cliente.telefono && cliente.telefono.replace(/\s/g, "").length < 8) {
+      errores.telefono = "El teléfono debe tener al menos 8 dígitos.";
     }
  
     return errores;
