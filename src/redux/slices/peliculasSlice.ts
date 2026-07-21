@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Pelicula } from '@/types/pelicula';
 import { peliculas } from '@/data/peliculas';
+import type { RootState } from '@/redux/store';
 
 // Estado que almacena la lista de pelis
 interface PeliculasState {
@@ -49,6 +50,15 @@ const peliculasSlice = createSlice({
 // Exporta las acciones para utilizarlas en los componentes
 export const { agregarPelicula, editarPelicula, eliminarPelicula, cambiarEstadoPelicula } =
   peliculasSlice.actions;
+
+// --- Selectores ---
+
+// Devuelve la lista completa de pelis
+export const selectPeliculas = (state: RootState) => state.peliculas.lista;
+
+// Devuelve una peli puntual según su id (usado en HistorialVentas)
+export const selectPeliculaPorId = (id: string) => (state: RootState) =>
+  state.peliculas.lista.find((p) => p.id === id);
 
 // Exporta el reducer para registrarlo en el store
 export default peliculasSlice.reducer;
