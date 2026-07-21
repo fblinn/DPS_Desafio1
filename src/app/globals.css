@@ -1731,24 +1731,12 @@ table.peliculas-table {
 }
 
 /* estilos para el historial de ventas*/
-.hv-title {
-  font-family: var(--font-display) !important;
-  font-size: 34px !important;
-  letter-spacing: 1px !important;
-  font-weight: normal !important;
-  color: #fdfeff;
-}
-
-.hv-page {
-background: #141414 !important;
-}
 .hv-panel {
   border: 1px solid #e2e8f0;
   border-radius: 16px;
   background: #ffffff;
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 }
-
 
 /* ---------- Filtros ---------- */
 
