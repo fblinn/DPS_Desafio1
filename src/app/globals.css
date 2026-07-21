@@ -1731,104 +1731,17 @@ table.peliculas-table {
 }
 
 /* estilos para el historial de ventas*/
-.hv-page {
-  min-height: 100vh;
-  background-color: #f8fafc;
-  padding: 24px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-}
-
-.hv-container {
-  max-width: 960px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-/* ---------- Encabezado + Resumen de compra ---------- */
-
-.hv-header-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
 .hv-title {
-  font-size: 18px;
-  font-weight: 800;
-  letter-spacing: 0.02em;
-  color: #0f172a;
-  margin: 0;
+  font-family: var(--font-display) !important;
+  font-size: 34px !important;
+  letter-spacing: 1px !important;
+  font-weight: normal !important;
+  color: #fdfeff;
 }
 
-.hv-resumen {
-  width: 100%;
-  max-width: 280px;
-  border: 1px dashed #cbd5e1;
-  border-radius: 12px;
-  background: #ffffff;
-  padding: 16px;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+.hv-page {
+background: #141414 !important;
 }
-
-.hv-resumen-title {
-  font-size: 13px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: #1e293b;
-  margin: 0 0 12px 0;
-}
-
-.hv-resumen-list {
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.hv-resumen-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 14px;
-}
-
-.hv-resumen-label {
-  color: #64748b;
-}
-
-.hv-resumen-value {
-  color: #1e293b;
-  font-weight: 500;
-}
-
-.hv-resumen-total {
-  margin-top: 10px;
-  padding-top: 8px;
-  border-top: 1px solid #e2e8f0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.hv-resumen-total-label {
-  font-size: 14px;
-  font-weight: 600;
-  color: #334155;
-}
-
-.hv-resumen-total-value {
-  font-size: 16px;
-  font-weight: 700;
-  color: #0f172a;
-}
-
-/* ---------- Panel principal ---------- */
-
 .hv-panel {
   border: 1px solid #e2e8f0;
   border-radius: 16px;
@@ -1836,79 +1749,6 @@ table.peliculas-table {
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 }
 
-/* ---------- Barra de navegación ---------- */
-
-.hv-navbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid #e2e8f0;
-  padding: 12px 20px;
-}
-
-.hv-navbar-left {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-}
-
-.hv-icon-btn {
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background: #ffffff;
-  color: #64748b;
-  padding: 6px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.hv-icon-btn:hover {
-  background: #f8fafc;
-}
-
-.hv-nav-links {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-}
-
-.hv-nav-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  padding: 0 0 4px 0;
-  font-size: 14px;
-  color: #64748b;
-  cursor: pointer;
-}
-
-.hv-nav-link:hover {
-  color: #334155;
-}
-
-.hv-nav-link.is-active {
-  color: #0f172a;
-  font-weight: 600;
-  border-bottom-color: #0f172a;
-}
-
-.hv-avatar-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 999px;
-  border: 1px solid #e2e8f0;
-  background: #ffffff;
-  color: #94a3b8;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
 
 /* ---------- Filtros ---------- */
 
