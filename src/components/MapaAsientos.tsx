@@ -59,6 +59,7 @@ export default function MapaAsientos({ onCompraConfirmada }: MapaAsientosProps) 
   const [erroresCliente, setErroresCliente] = useState<ErroresCliente>({});
  // una especie de foto de la compra confirmada
   const [compraConfirmada, setCompraConfirmada] = useState<CompraConfirmada | null>(null);
+  const [avisoAsientos, setAvisoAsientos] = useState(false);
 
   if (!modalAbierto) return null;
 
@@ -136,9 +137,9 @@ export default function MapaAsientos({ onCompraConfirmada }: MapaAsientosProps) 
     return errores;
   };
  
-  const confirmarCompra = () => {
+    const confirmarCompra = () => {
     if (asientosSeleccionados.length === 0) {
-      alert("Selecciona al menos un asiento.");
+      setAvisoAsientos(true);
       return;
     }
  
@@ -403,6 +404,34 @@ export default function MapaAsientos({ onCompraConfirmada }: MapaAsientosProps) 
       <div className="form-actions">
         <button type="button" className="btn-primary" onClick={cerrarConfirmacion}>
           Aceptar
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+{/* Aviso: no hay asientos seleccionados */}
+{avisoAsientos && (
+  <div className="modal-overlay" onClick={() => setAvisoAsientos(false)}>
+    <div className="modal-card modal-card-small" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-header">
+        <h2 className="modal-title">Selecciona un asiento</h2>
+        <button
+          className="modal-close"
+          onClick={() => setAvisoAsientos(false)}
+          aria-label="Cerrar"
+        >
+          ×
+        </button>
+      </div>
+
+      <p className="confirm-message">
+        Debes seleccionar al menos un asiento en el mapa antes de continuar con la compra.
+      </p>
+
+      <div className="form-actions">
+        <button type="button" className="btn-primary" onClick={() => setAvisoAsientos(false)}>
+          Entendido
         </button>
       </div>
     </div>
