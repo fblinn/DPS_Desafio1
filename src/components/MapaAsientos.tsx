@@ -1,17 +1,22 @@
-import { useDispatch, useSelector } from "react-redux";
-import React, { useState } from "react";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import React, { useState, useEffect } from "react";
 import "@/app/globals.css";
 
 import {
   seleccionarEstadoAsientos,
   seleccionarTotal,
+  seleccionarConflictoAsientos,
   cerrarModal,
   alternarAsiento,
   actualizarCliente,
   limpiarSeleccion,
+  confirmarCompra as confirmarCompraAccion,
+  limpiarConflicto,
+  sincronizarOcupados,
+  claveFuncion,
 } from "@/redux/slices/asientoSlice";
 import { agregarReserva } from "@/redux/slices/reservasSlice";
-import { confirmarCompra as confirmarCompraLocalStorage } from "@/redux/slices/asientoThunks";
+import { store } from "@/redux/store";
 
 const REGEX_NOMBRE = /^[A-Za-zÀ-ÖØ-öø-ÿñÑ\s]*$/;
 const REGEX_TELEFONO = /^[0-9\s]*$/;
@@ -39,7 +44,7 @@ interface MapaAsientosProps {
 
 export default function MapaAsientos({ onCompraConfirmada }: MapaAsientosProps) {
 
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const {
     filas,
@@ -50,17 +55,45 @@ export default function MapaAsientos({ onCompraConfirmada }: MapaAsientosProps) 
     cliente,
     modalAbierto,
     peliculaId,
+    salaId,
     salaNombre,
     fecha,
     hora,
-  } = useSelector(seleccionarEstadoAsientos);
+  } = useAppSelector(seleccionarEstadoAsientos);
 
-  const total = useSelector(seleccionarTotal);
+  const total = useAppSelector(seleccionarTotal);
+  const conflictoAsientos = useAppSelector(seleccionarConflictoAsientos);
 
   const [erroresCliente, setErroresCliente] = useState<ErroresCliente>({});
  // una especie de foto de la compra confirmada
   const [compraConfirmada, setCompraConfirmada] = useState<CompraConfirmada | null>(null);
   const [avisoAsientos, setAvisoAsientos] = useState(false);
+
+  // Sincroniza el mapa de asientos si otra pestaña confirmó una compra
+  // para la MISMA función mientras este modal está abierto.
+  useEffect(() => {
+    function onStorage(e: StorageEvent) {
+      if (e.key !== "persist:root" || !e.newValue) return;
+      if (!peliculaId || !salaId || !fecha || !hora) return;
+
+      try {
+        const raiz = JSON.parse(e.newValue);
+        if (!raiz.asientos) return;
+
+        const asientosPersistido = JSON.parse(raiz.asientos);
+        const clave = claveFuncion(peliculaId, salaId, fecha, hora);
+        const ocupadosActualizados: string[] =
+          asientosPersistido.asientosOcupadosPorFuncion?.[clave] ?? [];
+
+        dispatch(sincronizarOcupados(ocupadosActualizados));
+      } catch {
+        // si el parseo falla, simplemente ignoramos ese evento
+      }
+    }
+
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, [peliculaId, salaId, fecha, hora, dispatch]);
 
   if (!modalAbierto) return null;
 
@@ -124,10 +157,6 @@ export default function MapaAsientos({ onCompraConfirmada }: MapaAsientosProps) 
     } else if (!REGEX_EMAIL.test(cliente.email)) {
       errores.email = "Ingresa un correo válido (nombre@gmail.com).";
     }
- 
-    //if (cliente.telefono && !REGEX_TELEFONO.test(cliente.telefono)) {
-      //errores.telefono = "Ingrese un número de teléfono válido.";
-    //}
 
     if (cliente.telefono && !REGEX_TELEFONO.test(cliente.telefono)) {
       errores.telefono = "Ingrese un número de teléfono válido.";
@@ -138,7 +167,7 @@ export default function MapaAsientos({ onCompraConfirmada }: MapaAsientosProps) 
     return errores;
   };
  
-    const confirmarCompra = () => {
+  const confirmarCompra = () => {
     if (asientosSeleccionados.length === 0) {
       setAvisoAsientos(true);
       return;
@@ -155,11 +184,27 @@ export default function MapaAsientos({ onCompraConfirmada }: MapaAsientosProps) 
       alert("No se encontró la función seleccionada. Vuelve a elegirla desde Películas.");
       return;
     }
+
+    // Guardamos una copia ANTES de despachar, porque el reducer
+    // vacía asientosSeleccionados si la compra se confirma con éxito.
+    const asientosVendidos = [...asientosSeleccionados];
+    const clienteVendido = { ...cliente };
+
+    dispatch(confirmarCompraAccion(asientosVendidos));
+
+    // Redux despacha de forma síncrona, así que podemos leer el estado
+    // actualizado inmediatamente para saber si hubo conflicto.
+    const huboConflicto = store.getState().asientos.conflictoAsientos.length > 0;
+
+    if (huboConflicto) {
+      // El aviso de conflicto se muestra solo, vía el selector conflictoAsientos.
+      return;
+    }
  
     console.log({
-      asientos: asientosSeleccionados,
+      asientos: asientosVendidos,
       total,
-      cliente,
+      cliente: clienteVendido,
     });
 
     // Registra la venta en el historial (reservasSlice)
@@ -169,23 +214,21 @@ export default function MapaAsientos({ onCompraConfirmada }: MapaAsientosProps) 
         sala: salaNombre ?? "",
         fecha,
         hora,
-        asientos: [...asientosSeleccionados],
-        clienteNombre: cliente.nombre,
-        clienteEmail: cliente.email,
-        clienteTelefono: cliente.telefono,
+        asientos: asientosVendidos,
+        clienteNombre: clienteVendido.nombre,
+        clienteEmail: clienteVendido.email,
+        clienteTelefono: clienteVendido.telefono,
         monto: total,
       })
     );
  
     setCompraConfirmada({
-      asientos: [...asientosSeleccionados],
+      asientos: asientosVendidos,
       total,
-      cliente: { ...cliente },
+      cliente: clienteVendido,
     });
 
-    dispatch(limpiarSeleccion());
     setErroresCliente({});
-    //dispatch(cerrarModal()); solo andaba haciendo una prueba y no sirve
   };
 
   const cerrarConfirmacion = () => {
@@ -432,6 +475,42 @@ export default function MapaAsientos({ onCompraConfirmada }: MapaAsientosProps) 
 
       <div className="form-actions">
         <button type="button" className="btn-primary" onClick={() => setAvisoAsientos(false)}>
+          Entendido
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+{/* Aviso: choque de asientos con otra venta */}
+{conflictoAsientos.length > 0 && (
+  <div
+    className="modal-overlay"
+    onClick={() => dispatch(limpiarConflicto())}
+  >
+    <div className="modal-card modal-card-small" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-header">
+        <h2 className="modal-title">Asientos ya no disponibles</h2>
+        <button
+          className="modal-close"
+          onClick={() => dispatch(limpiarConflicto())}
+          aria-label="Cerrar"
+        >
+          ×
+        </button>
+      </div>
+
+      <p className="confirm-message">
+        Estos asientos fueron tomados por otra venta mientras elegías:{" "}
+        <strong>{conflictoAsientos.join(", ")}</strong>. Por favor selecciona otros.
+      </p>
+
+      <div className="form-actions">
+        <button
+          type="button"
+          className="btn-primary"
+          onClick={() => dispatch(limpiarConflicto())}
+        >
           Entendido
         </button>
       </div>
