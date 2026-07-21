@@ -15,7 +15,7 @@ import {
   User,
 } from "lucide-react";
 
-import "./HistorialVentas.css";
+import "@/app/globals.css";
 import { useAppSelector } from "@/redux/hooks";
 import { selectReservas } from "@/redux/slices/reservasSlice";
 import { selectPeliculaPorId } from "@/redux/slices/peliculasSlice";
