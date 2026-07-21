@@ -30,6 +30,7 @@ export default function Home() {
   const [filtros, setFiltros] = useState<FiltrosState>(FILTROS_INICIALES);
   const [modalAbierto, setModalAbierto] = useState(false);
   const [peliculaEditar, setPeliculaEditar] = useState<Pelicula | null>(null);
+  const [peliculaEliminar, setPeliculaEliminar] = useState<Pelicula | null>(null);
   const [pasoVenta, setPasoVenta] = useState<'cerrado' | 'peliculas' | 'detalle'>('cerrado');
   const [peliculaSeleccionada, setPeliculaSeleccionada] = useState<Pelicula | null>(null);
 
@@ -79,9 +80,16 @@ export default function Home() {
 
   // Elimina una peli
   const handleEliminar = (id: string) => {
-    if (confirm('¿Eliminar esta película?')) {
-      dispatch(eliminarPelicula(id));
+    const pelicula = peliculas.find((p) => p.id === id) ?? null;
+    setPeliculaEliminar(pelicula);
+  };
+
+  // Se ejecuta al presionar "Eliminar" dentro de la modal
+  const confirmarEliminar = () => {
+    if (peliculaEliminar) {
+      dispatch(eliminarPelicula(peliculaEliminar.id));
     }
+    setPeliculaEliminar(null);
   };
 
   //Funciones para el flujo de venta
@@ -184,6 +192,42 @@ export default function Home() {
       {modalAbierto && (
         <FormularioPelicula peliculaEditar={peliculaEditar} onClose={cerrarModal} />
       )}
+
+      {/* Aviso de eliminación peli */}
+        {peliculaEliminar && (
+          <div className="modal-overlay" onClick={() => setPeliculaEliminar(null)}>
+            <div className="modal-card modal-card-small" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h2 className="modal-title">Eliminar película</h2>
+                <button
+                  className="modal-close"
+                  onClick={() => setPeliculaEliminar(null)}
+                  aria-label="Cerrar"
+                >
+                  ×
+                </button>
+              </div>
+
+              <p className="confirm-message">
+                ¿Seguro que quieres eliminar <strong>{peliculaEliminar.nombre}</strong>? Esta
+                acción no se puede deshacer.
+              </p>
+
+              <div className="form-actions">
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={() => setPeliculaEliminar(null)}
+                >
+                  Cancelar
+                </button>
+                <button type="button" className="btn-danger" onClick={confirmarEliminar}>
+                  Eliminar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
       {pasoVenta === 'peliculas' && (
         <ModalSeleccionPelicula
