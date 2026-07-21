@@ -108,6 +108,12 @@ const asientoSlice = createSlice({
   initialState: estadoInicial,
   reducers: {
     abrirModal(state, action: PayloadAction<AbrirModalPayload>) {
+      // Guard: si el estado persistido en localStorage es de una versión
+      // anterior del slice, este campo puede no existir todavía.
+      if (!state.asientosOcupadosPorFuncion) {
+        state.asientosOcupadosPorFuncion = {};
+      }
+
       state.modalAbierto = true;
       state.peliculaId = action.payload.peliculaId;
       state.salaId = action.payload.salaId;
@@ -180,6 +186,9 @@ const asientoSlice = createSlice({
       if (!state.peliculaId || !state.salaId || !state.fecha || !state.hora) {
         return;
       }
+      if (!state.asientosOcupadosPorFuncion) {
+        state.asientosOcupadosPorFuncion = {};
+      }
 
       const clave = claveFuncion(
         state.peliculaId,
@@ -216,6 +225,10 @@ const asientoSlice = createSlice({
     // Se llama cuando otra pestaña actualizó localStorage: refresca
     // el mapa de asientos de la función actualmente abierta.
     sincronizarOcupados(state, action: PayloadAction<string[]>) {
+      if (!state.asientosOcupadosPorFuncion) {
+        state.asientosOcupadosPorFuncion = {};
+      }
+
       const ocupados = action.payload;
       state.asientos = construirAsientos(ocupados);
 
