@@ -323,7 +323,7 @@ export default function HistorialVentas() {
   };
 
   return (
-    <div className="main-content">
+    <div >
       <div className="hv-container">
         <div className="hv-header-row">
           <h1 className="page-title">HISTORIAL DE VENTAS</h1>
